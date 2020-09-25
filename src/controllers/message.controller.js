@@ -7,7 +7,7 @@ function checkUserByPhone(req, res, next) {
   checkUserHandler(
     phoneNumber || ""
   )
-    .then(resp => res.status(200).send({ message: resp }))
+    .then(resp => res.status(200).send( resp ))
     .catch(err => res.status(500).send({ message: err }));
 }
 
@@ -33,7 +33,7 @@ function updateLangauge(req, res, next) {
   updateLangaugeHandler(
     req.body
   )
-    .then(resp => res.status(200).send({ message: resp }))
+    .then(resp => res.status(200).send( resp ))
     .catch(err => res.status(500).send({ message: err }));
 }
 
@@ -56,7 +56,7 @@ function updateSex(req, res, next) {
   updateSexHandler(
     req.body
   )
-    .then(resp => res.status(200).send({ message: resp }))
+    .then(resp => res.status(200).send( resp ))
     .catch(err => res.status(500).send({ message: err }));
 }
 
@@ -80,7 +80,7 @@ function updateAge(req, res, next) {
   updateAgeHandler(
     req.body
   )
-    .then(resp => res.status(200).send({ message: resp }))
+    .then(resp => res.status(200).send( resp ))
     .catch(err => res.status(500).send({ message: err }));
 }
 

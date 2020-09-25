@@ -63,6 +63,7 @@ module.exports = function (sequelize, DataTypes) {
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        defaultValue: sequelize.literal("CURRENT_TIMESTAMP")
       },
       languageId: {
         type: DataTypes.INTEGER,
