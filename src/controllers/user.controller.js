@@ -15,13 +15,13 @@ async function checkUserHandler(phoneNumber) {
   const user = await userSerice.getUserByPhone(phoneNumber);
   if (user) {
     const userStatus = await userSerice.getStatusById(user.regStatus)
-    return { status: userStatus.status, id: user.id }
+    return { success:true, status: userStatus.status, id: user.id }
   } else {
     const createUser = await userSerice.addUser({ phoneNumber: phoneNumber })
     if (!createUser) {
-      throw "Failed to create User"
+      return {success:false,status:"NEW",id:user.id}
     }
-    return { status: "NEW", id: createUser.id }
+    return { success:true, status: "NEW", id: createUser.id }
   }
 }
 
