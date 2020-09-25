@@ -1,5 +1,5 @@
 const app = (module.exports = require("express")());
-const controller = require("../controllers/message.controller")
+const controller = require("../controllers/user.controller")
 
 app.get("/api/checkuser",controller.checkUserByPhone)
 app.post("/api/updtlang",controller.updateLangauge);
