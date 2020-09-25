@@ -7,7 +7,7 @@ function checkUserByPhone(req, res, next) {
   checkUserHandler(
     phoneNumber || ""
   )
-    .then(resp => res.status(200).send( resp ))
+    .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));
 }
 
@@ -27,13 +27,13 @@ async function checkUserHandler(phoneNumber) {
 
 function updateLangauge(req, res, next) {
   const { id, languageId } = req.body;
-  if (!id || languageId) {
+  if (!id || !languageId) {
     return res.status(200).send("Invalid Request")
   }
   updateLangaugeHandler(
     req.body
   )
-    .then(resp => res.status(200).send( resp ))
+    .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));
 }
 
@@ -42,7 +42,10 @@ async function updateLangaugeHandler(body) {
   if (user) {
     const updateUser = await userSerice.updateUser(user, { languageId: body.languageId })
     if (updateUser) {
-      return { success: true, status: "LANGUAGE" }
+      const updateStatus = await userSerice.updateUser(user, { regStatus: 2 })
+      if (updateStatus) {
+         return { success: true, status: "LANGUAGE" }
+      }
     }
   }
   return { success: false, status: 'LANGUAGE' }
@@ -50,13 +53,13 @@ async function updateLangaugeHandler(body) {
 
 function updateSex(req, res, next) {
   const { id, sexId } = req.body;
-  if (!id || sexId) {
+  if (!id || !sexId) {
     return res.status(200).send("Invalid Request")
   }
   updateSexHandler(
     req.body
   )
-    .then(resp => res.status(200).send( resp ))
+    .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));
 }
 
@@ -65,6 +68,7 @@ async function updateSexHandler(body) {
   if (user) {
     const updateUser = await userSerice.updateUser(user, { sexId: body.sexId })
     if (updateUser) {
+      const updateStatus = await userSerice.updateUser(user, { regStatus: 3 })
       return { success: true, status: "SEX" }
     }
   }
@@ -74,21 +78,22 @@ async function updateSexHandler(body) {
 
 function updateAge(req, res, next) {
   const { id, ageRangeId } = req.body;
-  if (!id || ageRangeId) {
+  if (!id || !ageRangeId) {
     return res.status(200).send("Invalid Request")
   }
   updateAgeHandler(
     req.body
   )
-    .then(resp => res.status(200).send( resp ))
+    .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));
 }
 
 async function updateAgeHandler(body) {
   const user = await userSerice.getUserById(body.id);
   if (user) {
-    const updateUser = await userSerice.updateUser(user, { ageRangeId: body.sexId })
+    const updateUser = await userSerice.updateUser(user, { ageRengId: body.ageRangeId })
     if (updateUser) {
+      const updateStatus = await userSerice.updateUser(user, { regStatus: 4 })
       return { success: true, status: "AGE" }
     }
   }
