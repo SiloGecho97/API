@@ -40,7 +40,6 @@ function changePhoneNumber(phoneNumber) {
   } else{
     return false;
   }
-
 }
 
 function updateLangauge(req, res, next) {
