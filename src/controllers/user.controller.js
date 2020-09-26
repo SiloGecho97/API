@@ -12,7 +12,10 @@ function checkUserByPhone(req, res, next) {
 }
 
 async function checkUserHandler(phoneNumber) {  
- let changedPhone= changePhoneNumber(phoneNumber)
+ let changedPhone = changePhoneNumber(phoneNumber);
+ if(!changedPhone){
+   throw "invalid phoneNumber";
+ }
  const user = await userSerice.getUserByPhone(changedPhone);
   if (user) {
     const userStatus = await userSerice.getStatusById(user.regStatus)
