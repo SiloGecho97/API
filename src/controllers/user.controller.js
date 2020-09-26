@@ -25,7 +25,12 @@ async function checkUserHandler(phoneNumber) {
   }
 }
 
+function changePhoneNumber(phoneNumber){
+
+}
+
 function updateLangauge(req, res, next) {
+  console.log(req.body)
   const { id, languageId } = req.body;
   if (!id || !languageId) {
     return res.status(200).send("Invalid Request")
@@ -38,6 +43,7 @@ function updateLangauge(req, res, next) {
 }
 
 async function updateLangaugeHandler(body) {
+  
   const user = await userSerice.getUserById(body.id);
   if (user) {
     const updateUser = await userSerice.updateUser(user, { languageId: body.languageId })
