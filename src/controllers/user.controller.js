@@ -11,21 +11,35 @@ function checkUserByPhone(req, res, next) {
     .catch(err => res.status(500).send({ message: err }));
 }
 
-async function checkUserHandler(phoneNumber) {
-  const user = await userSerice.getUserByPhone(phoneNumber);
+async function checkUserHandler(phoneNumber) {  
+ let changedPhone= changePhoneNumber(phoneNumber)
+ const user = await userSerice.getUserByPhone(changedPhone);
   if (user) {
     const userStatus = await userSerice.getStatusById(user.regStatus)
-    return { success:true, status: userStatus.status, id: user.id }
+    return { success: true, status: userStatus.status, id: user.id }
   } else {
-    const createUser = await userSerice.addUser({ phoneNumber: phoneNumber })
+    const createUser = await userSerice.addUser({ phoneNumber: changedPhone })
     if (!createUser) {
-      return {success:false,status:"NEW",id:user.id}
+      return { success: false, status: "NEW", id: user.id }
     }
-    return { success:true, status: "NEW", id: createUser.id }
+    return { success: true, status: "NEW", id: createUser.id }
   }
 }
 
-function changePhoneNumber(phoneNumber){
+function changePhoneNumber(phoneNumber) {
+  if (phoneNumber.startsWith("0")) {
+    return phoneNumber;
+  } else if (phoneNumber.startsWith("251")) {
+    return "0"+phoneNumber.substr(3, 12);
+  } else if (phoneNumber.startsWith('+251')) {
+    return "0"+phoneNumber.substr(4,12);
+  } else if (phoneNumber.startsWith(' 251')) {
+    return "0"+phoneNumber.substr(4,12);
+  }else if(phoneNumber.startsWith('9')){
+    return "0"+phoneNumber;
+  } else{
+    return false;
+  }
 
 }
 
@@ -43,14 +57,14 @@ function updateLangauge(req, res, next) {
 }
 
 async function updateLangaugeHandler(body) {
-  
+
   const user = await userSerice.getUserById(body.id);
   if (user) {
     const updateUser = await userSerice.updateUser(user, { languageId: body.languageId })
     if (updateUser) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 2 })
       if (updateStatus) {
-         return { success: true, status: "LANGUAGE" }
+        return { success: true, status: "LANGUAGE" }
       }
     }
   }
