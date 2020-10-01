@@ -16,6 +16,9 @@ async function checkUserHandler(phoneNumber) {
  if(!changedPhone){
    throw "invalid phoneNumber";
  }
+ if(isNaN(changedPhone) || changedPhone.length != 10){
+   throw "invalid phoneNumber";
+ }
  const user = await userSerice.getUserByPhone(changedPhone);
   if (user) {
     const userStatus = await userSerice.getStatusById(user.regStatus)
