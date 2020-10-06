@@ -196,14 +196,18 @@ async function updateIsAvailableHandler(body) {
   const user = await userSerice.getUserById(body.id);
   if (user) {
     if (body.available || body.available == 1) {
-      const updateUser = await userSerice.updateUser(user, { isAvaliable: 1 })
-      return { success: true, status: 'AVAILABLE' }
+      const updateUser = await userSerice.updateUser(user, { isAvailable: 1 });
+      if(updateUser){
+        return { success: true, isAvailable: true }
+      }
     } else if (!body.available || body.available == 0) {
-      const updateUser = await userSerice.updateUser(user, { isAvaliable: 0 })
-      return { success: true, status: 'AVAILABLE' }
+      const updateUser = await userSerice.updateUser(user, { isAvailable: 0 })
+      if(updateUser){
+        return { success: false, isAvailable: false }
+      }
     }
   }
-  return { success: false, status: 'AVAILABLE' }
+  return { success: false, isAvaliable: user.isAvaliable ? true : false }
 }
 function updateIsOnCall(req, res, next) {
   console.log(req.body)
@@ -233,7 +237,7 @@ async function updateIsOnCallHadler(body) {
       }
     }
   }
-  return { success: false,isOnCall:user.isOnCall?true:false }
+  return { success: false, isOnCall: user.isOnCall ? true : false }
 }
 
 module.exports = {
