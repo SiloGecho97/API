@@ -1,7 +1,7 @@
 
 
 const axios = require('axios');
-const { User, RegStatus } = require('../models');
+const { User, RegStatus, Sex } = require('../models');
 
 function addUser(body) {
   return User.create(body).catch((err) => console.log(err));
@@ -37,12 +37,26 @@ function getUserById(id) {
 function updateUser(user, body) {
   return user.update(body).catch(err => console.log(err));
 }
-
-
+/**
+ * Get Sex by Sex Id
+ * @param {*} id 
+ */
+function getSexById(id){
+  return Sex.findOne({ where: { id } }).catch(err => console.log(err));
+}
+/**
+ * Get Status By Id
+ * @param {*} id 
+ */
+function getRegStatusById(id){
+  return RegStatus.findOne({ where: { id } }).catch(err => console.log(err));
+}
 module.exports = {
   addUser,
   getUserByPhone,
   getStatusById,
   getUserById,
   updateUser,
+  getSexById,
+  getRegStatusById
 };
