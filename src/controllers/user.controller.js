@@ -269,14 +269,14 @@ async function checkOnCallHandler(id) {
   }
   return { success: false }
 }
-function getPeffered(req, res, next) {
-  getPefferedHandler(req.params.id
+function getPreffered(req, res, next) {
+  getPrefferedHandler(req.params.id
   )
     .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));
 }
 
-async function getPefferedHandler(id) {
+async function getPrefferedHandler(id) {
   const user = await userSerice.getUserById(id);
   if (user) {
     return { success: true, preferredSexId: user.preferredSexId, preferredAgeId: user.preferredAgeId, preferredLanguageId: user.preferredLanguageId }
@@ -284,18 +284,18 @@ async function getPefferedHandler(id) {
   return { success: false }
 }
 
-function updateUserPeffered(req, res, next) {
+function updateUserPreffered(req, res, next) {
   const { id } = req.body;
   if (!id) {
     return res.status(400).send("Invalid Request")
   }
-  updateUserPefferedHandler(req.body
+  updateUserPrefferedHandler(req.body
   )
     .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));
 }
 
-async function updateUserPefferedHandler(body) {
+async function updateUserPrefferedHandler(body) {
   const user = await userSerice.getUserById(body.id);
   if (user) {
     if (body.languageId) {
@@ -335,6 +335,6 @@ module.exports = {
   updateIsOnCall,
   checkAvailable,
   checkOnCall,
-  getPeffered,
-  updateUserPeffered
+  getPreffered,
+  updateUserPreffered
 };
