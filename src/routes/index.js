@@ -12,6 +12,6 @@ app.post("/api/updtoncall",controller.updateIsOnCall);
 app.get("/api/check/available/:id",controller.checkAvailable);
 app.get("/api/check/oncall/:id",controller.checkOnCall);
 
-app.get("/api/peffered/:id",controller.getPeffered)
-
+app.get("/api/preffered/:id",controller.getPreffered)
+app.post("/api/preffered",controller.updateUserPreffered)
 
