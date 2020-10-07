@@ -302,7 +302,7 @@ async function updateUserPrefferedHandler(body) {
       const lang = await userSerice.getLanguageById(body.languageId)
       if (lang) {
         const updateUser = await userSerice.updateUser(user, { preferredLanguageId: body.languageId });
-        if (updateUser) return { success: true, preferredLanguageId: body.sexId }
+        if (updateUser) return { success: true, preferredLanguageId: body.languageId }
       }
     }
     else if (body.sexId) {
@@ -315,7 +315,7 @@ async function updateUserPrefferedHandler(body) {
       const age = await userSerice.getAgeById(boyd.ageRangeId);
       if (age) {
         const updateUser = await userSerice.updateUser(user, { preferredAgeId: body.ageRangeId });
-        if (updateUser) return { success: true, preferredAgeId: body.sexId }
+        if (updateUser) return { success: true, preferredAgeId: body.ageRangeId }
       }
     }
     return { success: false, preferredSexId: user.preferredSexId, preferredAgeId: user.preferredAgeId, preferredLanguageId: user.preferredLanguageId }
