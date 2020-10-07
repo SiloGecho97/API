@@ -157,8 +157,8 @@ async function updateRegStatusHandler(body) {
 
 function updateIsAgree(req, res, next) {
   console.log(req.body)
-  const { id, agreed } = req.body;
-  if (!id || !agreed) {
+  const { id, agree } = req.body;
+  if (!id || !agree) {
     return res.status(400).send("Invalid Request")
   }
   updateIsAgreeHandler(
@@ -171,7 +171,7 @@ function updateIsAgree(req, res, next) {
 async function updateIsAgreeHandler(body) {
   const user = await userSerice.getUserById(body.id);
   if (user) {
-    if (body.agreed) {
+    if (body.agree) {
       const updateUser = await userSerice.updateUser(user, { isAgreedToTerms: 1, regStatus: 10 })
       return { success: true, status: 'AGREED' }
     }
@@ -197,12 +197,12 @@ async function updateIsAvailableHandler(body) {
   if (user) {
     if (body.available || body.available == 1) {
       const updateUser = await userSerice.updateUser(user, { isAvailable: 1 });
-      if(updateUser){
+      if (updateUser) {
         return { success: true, isAvailable: true }
       }
     } else if (!body.available || body.available == 0) {
       const updateUser = await userSerice.updateUser(user, { isAvailable: 0 })
-      if(updateUser){
+      if (updateUser) {
         return { success: false, isAvailable: false }
       }
     }
@@ -240,6 +240,90 @@ async function updateIsOnCallHadler(body) {
   return { success: false, isOnCall: user.isOnCall ? true : false }
 }
 
+function checkAvailable(req, res, next) {
+  checkAvailableHandler(req.params.id
+  )
+    .then(resp => res.status(200).send(resp))
+    .catch(err => res.status(500).send({ message: err }));
+}
+
+async function checkAvailableHandler(id) {
+  const user = await userSerice.getUserById(id);
+  if (user) {
+    return { success: true, isAvailable: user.isAvailable ? true : false }
+  }
+  return { success: false }
+}
+
+function checkOnCall(req, res, next) {
+  checkOnCallHandler(req.params.id
+  )
+    .then(resp => res.status(200).send(resp))
+    .catch(err => res.status(500).send({ message: err }));
+}
+
+async function checkOnCallHandler(id) {
+  const user = await userSerice.getUserById(id);
+  if (user) {
+    return { success: true, isOnCall: user.isOnCall ? true : false }
+  }
+  return { success: false }
+}
+function getPeffered(req, res, next) {
+  getPefferedHandler(req.params.id
+  )
+    .then(resp => res.status(200).send(resp))
+    .catch(err => res.status(500).send({ message: err }));
+}
+
+async function getPefferedHandler(id) {
+  const user = await userSerice.getUserById(id);
+  if (user) {
+    return { success: true, preferredSexId: user.preferredSexId, preferredAgeId: user.preferredAgeId, preferredLanguageId: user.preferredLanguageId }
+  }
+  return { success: false }
+}
+
+function updateUserPeffered(req, res, next) {
+  const { id } = req.body;
+  if (!id) {
+    return res.status(400).send("Invalid Request")
+  }
+  updateUserPefferedHandler(req.body
+  )
+    .then(resp => res.status(200).send(resp))
+    .catch(err => res.status(500).send({ message: err }));
+}
+
+async function updateUserPefferedHandler(body) {
+  const user = await userSerice.getUserById(body.id);
+  if (user) {
+    if (body.languageId) {
+      const lang = await userSerice.getLanguageById(body.languageId)
+      if (lang) {
+        const updateUser = await userSerice.updateUser(user, { preferredLanguageId: body.languageId });
+        if (updateUser) return { success: true, preferredLanguageId: body.sexId }
+      }
+    }
+    else if (body.sexId) {
+      const sex = await userSerice.getSexById(body.sexId)
+      if (sex) {
+        const updateUser = await userSerice.updateUser(user, { preferredSexId: body.sexId });
+        if (updateUser) return { success: true, preferredSexId: body.sexId }
+      }
+    } else if (body.ageRangeId) {
+      const age = await userSerice.getAgeById(boyd.ageRangeId);
+      if (age) {
+        const updateUser = await userSerice.updateUser(user, { preferredAgeId: body.ageRangeId });
+        if (updateUser) return { success: true, preferredAgeId: body.sexId }
+      }
+    }
+    return { success: false, preferredSexId: user.preferredSexId, preferredAgeId: user.preferredAgeId, preferredLanguageId: user.preferredLanguageId }
+  }
+  return { success: false }
+}
+
+
 module.exports = {
   checkUserByPhone,
   updateLangauge,
@@ -248,5 +332,9 @@ module.exports = {
   updateRegStatus,
   updateIsAgree,
   updateIsAvailable,
-  updateIsOnCall
+  updateIsOnCall,
+  checkAvailable,
+  checkOnCall,
+  getPeffered,
+  updateUserPeffered
 };
