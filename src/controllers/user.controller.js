@@ -22,7 +22,7 @@ async function checkUserHandler(phoneNumber) {
   const user = await userSerice.getUserByPhone(changedPhone);
   if (user) {
     const userStatus = await userSerice.getStatusById(user.regStatus)
-    return { success: true, status: userStatus.status, id: user.id }
+    return { success: true, status: userStatus.status, id: user.id, preferredSexId: user.preferredSexId, preferredAgeId: user.preferredAgeId, preferredLanguageId: user.preferredLanguageId, isAvailable: user.isAvailable, isOnCall: user.isOnCall, isAgreedToTerms: user.isAgreedToTerms }
   } else {
     const createUser = await userSerice.addUser({ phoneNumber: changedPhone })
     if (!createUser) {
