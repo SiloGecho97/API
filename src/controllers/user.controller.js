@@ -66,7 +66,7 @@ async function updateLangaugeHandler(body) {
   const user = await userSerice.getUserById(body.id);
   if (user) {
     const updateUser = await userSerice.updateUser(user, { languageId: body.languageId })
-    if (updateUser) {
+    if (updateUser && updateUser.regStatus !== 10 ) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 2 })
       if (updateStatus) {
         return { success: true, status: "LANGUAGE" }
@@ -96,7 +96,7 @@ async function updateSexHandler(body) {
       throw "Invalid sex Id"
     }
     const updateUser = await userSerice.updateUser(user, { sexId: body.sexId })
-    if (updateUser) {
+    if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 3 })
       return { success: true, status: "SEX" }
     }
@@ -122,7 +122,7 @@ async function updateAgeHandler(body) {
   const user = await userSerice.getUserById(body.id);
   if (user) {
     const updateUser = await userSerice.updateUser(user, { ageRengId: body.ageRangeId })
-    if (updateUser) {
+    if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 4 })
       return { success: true, status: "AGE" }
     }
@@ -181,8 +181,8 @@ async function updateIsAgreeHandler(body) {
 
 function updateIsAvailable(req, res, next) {
   console.log(req.body)
-  const { id, available } = req.body;
-  if (!id || !available) {
+  const { id, available} = req.body;
+  if (!id &&  available !== undefined ) {
     return res.status(400).send("Invalid Request")
   }
   updateIsAvailableHandler(
@@ -203,7 +203,7 @@ async function updateIsAvailableHandler(body) {
     } else if (!body.available || body.available == 0) {
       const updateUser = await userSerice.updateUser(user, { isAvailable: 0 })
       if (updateUser) {
-        return { success: false, isAvailable: false }
+        return { success: true, isAvailable: false }
       }
     }
   }
@@ -212,7 +212,7 @@ async function updateIsAvailableHandler(body) {
 function updateIsOnCall(req, res, next) {
   console.log(req.body)
   const { id, onCall } = req.body;
-  if (!id || !onCall) {
+  if (!id && onCall !== undefined) {
     return res.status(400).send("Invalid Request")
   }
   updateIsOnCallHadler(
@@ -241,13 +241,14 @@ async function updateIsOnCallHadler(body) {
 }
 
 function checkAvailable(req, res, next) {
-  checkAvailableHandler(req.params.id
+  checkAvailableHandler(req.query.id
   )
     .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));
 }
 
 async function checkAvailableHandler(id) {
+  console.log(id)
   const user = await userSerice.getUserById(id);
   if (user) {
     return { success: true, isAvailable: user.isAvailable ? true : false }
@@ -256,7 +257,7 @@ async function checkAvailableHandler(id) {
 }
 
 function checkOnCall(req, res, next) {
-  checkOnCallHandler(req.params.id
+  checkOnCallHandler(req.query.id
   )
     .then(resp => res.status(200).send(resp))
     .catch(err => res.status(500).send({ message: err }));

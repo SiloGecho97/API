@@ -9,8 +9,8 @@ app.post("/api/updtstatus",controller.updateRegStatus);
 app.post("/api/updtagree",controller.updateIsAgree);
 app.post("/api/updtavailable",controller.updateIsAvailable);
 app.post("/api/updtoncall",controller.updateIsOnCall);
-app.get("/api/check/available/:id",controller.checkAvailable);
-app.get("/api/check/oncall/:id",controller.checkOnCall);
+app.get("/api/isavailable",controller.checkAvailable);
+app.get("/api/isoncall",controller.checkOnCall);
 app.get("/api/preffered/:id",controller.getPreffered)
 app.post("/api/preffered",controller.updateUserPreffered)
 
