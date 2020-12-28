@@ -1,4 +1,5 @@
 const app = (module.exports = require("express")());
+const callController = require("../controllers/call.controller");
 const controller = require("../controllers/user.controller")
 
 app.get("/api/checkuser",controller.checkUserByPhone)
@@ -14,3 +15,7 @@ app.get("/api/isoncall",controller.checkOnCall);
 app.get("/api/preffered/:id",controller.getPreffered)
 app.post("/api/preffered",controller.updateUserPreffered)
 
+//oncalls APIS
+app.put("/api/:id/isoncall",callController.updateUserOncall)
+app.post("/api/conference",callController.addConference)
+app.post("/api/call",callController.addCall)

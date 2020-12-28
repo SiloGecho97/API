@@ -12,6 +12,8 @@ const RegStatus = sequelize.import("./regStatus.js");
 const Language = sequelize.import("./language.js");
 const AgeRange = sequelize.import("./ageRange.js");
 
+const Conference = sequelize.import('./conference.js')
+const Call = sequelize.import('./call.js')
 module.exports = {
   User,
   UserCode,
@@ -20,5 +22,7 @@ module.exports = {
   Language,
   RegStatus,
   AgeRange,
-  Friend
+  Friend,
+  Conference,
+  Call
 };

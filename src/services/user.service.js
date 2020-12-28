@@ -1,7 +1,7 @@
 
 
 const axios = require('axios');
-const { User, RegStatus, Sex, Language, AgeRange } = require('../models');
+const { User, RegStatus, Sex, Language, AgeRange,Friend } = require('../models');
 
 function addUser(body) {
   return User.create(body).catch((err) => console.log(err));
@@ -57,8 +57,13 @@ function getLanguageById(id){
 function getAgeById(id){
   return AgeRange.findOne({ where: { id } }).catch(err => console.log(err));
 }
+
+function addFriend(body){
+  return Friend.create(body)
+}
 module.exports = {
   addUser,
+  addFriend,
   getUserByPhone,
   getStatusById,
   getUserById,
