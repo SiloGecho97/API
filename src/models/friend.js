@@ -2,8 +2,8 @@
 const moment = require("moment");
 
 module.exports = function (sequelize, DataTypes) {
-  let language = sequelize.define(
-    "language",
+  let friend = sequelize.define(
+    "friend",
     {
       id: {
         primaryKey: true,
@@ -32,9 +32,9 @@ module.exports = function (sequelize, DataTypes) {
     {
       timestamps: true,
       freezeTableName: true,
-      tableName: "language",
+      tableName: "friend",
     }
   );
 
-  return language;
+  return friend;
 };

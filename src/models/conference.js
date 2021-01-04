@@ -20,14 +20,30 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.INTEGER(11),
         allowNull: true,
       },
-      status:{
-          type:DataTypes.BOOLEAN,
-          allowNull:false,
-          defaultValue:0
+      age: {
+        type: DataTypes.INTEGER(11),
+        allowNull: true,
+      },
+      language: {
+        type: DataTypes.INTEGER(11),
+        allowNull: true,
+      },
+      status: {
+        type: DataTypes.ENUM("WAITING", "OCCUPIED", "CLOSED"),
+        allowNull: false,
+        defaultValue: "WAITING",
+      },
+      start_time:{
+        type:DataTypes.DATE,
+        allowNull:true,
+        defaultValue:sequelize.NOW
+      },
+      end_time:{
+        type:DataTypes.DATE,
       }
     },
     {
-    //   timestamps: false,
+      timestamps: false,
       freezeTableName: true,
       tableName: "conference",
     }

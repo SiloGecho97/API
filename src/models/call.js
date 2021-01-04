@@ -27,9 +27,10 @@ module.exports = function (sequelize, DataTypes) {
                 unique:true
             },
             status: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
+                type: DataTypes.ENUM("ACTIVE", "CLOSED"),
+                allowNull: false,
+                defaultValue: "ACTIVE",
+              },
             deletedAt:{
                 type:DataTypes.DATE,
             }

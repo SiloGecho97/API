@@ -1,4 +1,5 @@
 const redis = require("redis");
+const { RESOURCE } = require("../../constants");
 const port_redis = process.env.PORT || 6379;
 
 var client;
@@ -24,7 +25,26 @@ function saveToRedis(phone, status) {
   return new Promise((resolve, reject) => {
     client.set(`${phone.trim()}`, keys, (reply, error) => {
       console.log(reply);
-      if(error)reject(false);
+      if (error) reject(false);
+    });
+    resolve(true);
+  });
+}
+function incrementResource(){
+  return new Promise((resolve, reject) => {
+    client.incr(`resource`, (reply, error) => {
+      console.log(reply);
+      if (error) reject(false);
+    });
+    resolve(true);
+  });
+}
+
+function decrementResource(){
+  return new Promise((resolve, reject) => {
+    client.decr(`resource`, (reply, error) => {
+      console.log(reply);
+      if (error) reject(false);
     });
     resolve(true);
   });
@@ -32,7 +52,8 @@ function saveToRedis(phone, status) {
 
 function getFromRedis(id) {
   return new Promise((resolve, reject) => {
-    client.get(id, (reply, error) => {
+    client.get(id, (error, reply) => {
+      console.log(reply,error)
       if (error) reject(error);
       resolve(reply);
     });
@@ -54,9 +75,25 @@ async function redisMiddlerwareHandler(id) {
   }
 }
 
+function getResouceLeft(req, res, next) {
+  getResourceLeftHandler()
+    .then((data) =>
+      data ? res.status(200).send(data) : res.status(400).send(false)
+    )
+    .catch((err) => res.status(200).send(err));
+}
+
+async function getResourceLeftHandler() {
+  const resource = await getFromRedis("resource");
+  return {resourceLeft:RESOURCE - resource};
+}
+
 module.exports = {
   saveToRedis,
   getFromRedis,
   createRedisConnection,
-  redisMiddlerware
+  redisMiddlerware,
+  getResouceLeft,
+  incrementResource,
+  decrementResource
 };

@@ -37,6 +37,7 @@ function getUserById(id) {
 function updateUser(user, body) {
   return user.update(body).catch(err => console.log(err));
 }
+
 /**
  * Get Sex by Sex Id
  * @param {*} id 

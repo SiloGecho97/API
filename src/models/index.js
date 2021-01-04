@@ -14,6 +14,8 @@ const AgeRange = sequelize.import("./ageRange.js");
 
 const Conference = sequelize.import('./conference.js')
 const Call = sequelize.import('./call.js')
+const Bridge = sequelize.import('./bridges.js')
+
 module.exports = {
   User,
   UserCode,
@@ -24,5 +26,6 @@ module.exports = {
   AgeRange,
   Friend,
   Conference,
-  Call
+  Call,
+  Bridge
 };

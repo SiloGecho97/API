@@ -1,5 +1,7 @@
 const app = (module.exports = require("express")());
 const callController = require("../controllers/call.controller");
+const redisController = require("../controllers/redis.controller");
+const userController = require("../controllers/user.controller");
 const controller = require("../controllers/user.controller")
 
 app.get("/api/checkuser",controller.checkUserByPhone)
@@ -17,5 +19,39 @@ app.post("/api/preffered",controller.updateUserPreffered)
 
 //oncalls APIS
 app.put("/api/:id/isoncall",callController.updateUserOncall)
-app.post("/api/conference",callController.addConference)
-app.post("/api/call",callController.addCall)
+//add to call
+app.post("/api/call",callController.addCall);
+
+//Close the call
+app.put("/api/call/close/:id",callController.closeCall)
+//API Check available conference to join
+app.get("/api/conference",callController.getConference);
+//add to conference with preferance
+app.post("/api/conference",callController.addConference);
+
+//If available conference join the two conferance (reserve and occupy the conferance)
+app.put("/api/conference/join",callController.occupyConference);
+/**
+ * Hangup time
+ * 
+ * close the conferance
+ * End call of the that hangups up
+ * return the other user to the main menu
+ * 
+*/
+app.put("/api/conference/close",callController.closeConference)
+/**
+ * free 
+ * 
+ * Close Conference
+ *
+ **/
+
+//Brigdes when two use connect
+app.post("/api/bridge",callController.addBridge)
+
+//Add Friend
+app.post("/api/user/friend",userController.addFriend);
+
+//Resource Manage
+app.get("/api/resource",redisController.getResouceLeft)

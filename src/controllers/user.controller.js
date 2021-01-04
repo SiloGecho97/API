@@ -37,7 +37,7 @@ async function checkUserHandler(phoneNumber) {
     if (!createUser) {
       return { success: false, status: "NEW", id: user.id };
     }
-    saveToRedis(changedPhone,"NEW").catch(err =>console.log(err));
+    saveToRedis(changedPhone, "NEW").catch((err) => console.log(err));
     return { success: true, status: "NEW", id: createUser.id };
   }
 }
@@ -78,7 +78,9 @@ async function updateLangaugeHandler(body) {
     if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 2 });
       if (updateStatus) {
-        saveToRedis(user.phoneNumber,"LANGUAGE").catch(err =>console.log(err));
+        saveToRedis(user.phoneNumber, "LANGUAGE").catch((err) =>
+          console.log(err)
+        );
         return { success: true, status: "LANGUAGE" };
       }
     }
@@ -106,7 +108,7 @@ async function updateSexHandler(body) {
     const updateUser = await userSerice.updateUser(user, { sexId: body.sexId });
     if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 3 });
-      saveToRedis(user.phoneNumber,"SEX").catch(err =>console.log(err));
+      saveToRedis(user.phoneNumber, "SEX").catch((err) => console.log(err));
       return { success: true, status: "SEX" };
     }
   }
@@ -131,7 +133,7 @@ async function updateAgeHandler(body) {
     });
     if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 4 });
-      saveToRedis(user.phoneNumber,"AGE").catch(err =>console.log(err));
+      saveToRedis(user.phoneNumber, "AGE").catch((err) => console.log(err));
       return { success: true, status: "AGE" };
     }
   }
@@ -181,7 +183,7 @@ async function updateIsAgreeHandler(body) {
         isAgreedToTerms: 1,
         regStatus: 10,
       });
-      saveToRedis(user.phoneNumber,"AGREED").catch(err =>console.log(err));
+      saveToRedis(user.phoneNumber, "AGREED").catch((err) => console.log(err));
       return { success: true, status: "AGREED" };
     }
   }
@@ -342,6 +344,17 @@ async function updateUserPrefferedHandler(body) {
   return { success: false };
 }
 
+function addFriend(req, res, next) {
+  addFriendHandler(req.body)
+    .then((resp) => res.status(200).send(resp))
+    .catch((err) => next(err));
+}
+
+async function addFriendHandler(body) {
+  const friend = await userSerice.addFriend(body);
+  return friend;
+}
+
 module.exports = {
   checkUserByPhone,
   updateLangauge,
@@ -355,4 +368,5 @@ module.exports = {
   checkOnCall,
   getPreffered,
   updateUserPreffered,
+  addFriend,
 };

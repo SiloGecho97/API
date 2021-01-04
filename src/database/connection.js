@@ -5,6 +5,7 @@ const sequelize = new Sequelize("chatdb", "root", "password", {
   dialect: "mysql",
   logging: false,
   timezone: '+03:00',
+  logging:console.log,
   pool: {
     max: 500,
     min: 30,
