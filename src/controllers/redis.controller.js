@@ -88,12 +88,34 @@ async function getResourceLeftHandler() {
   return {resourceLeft:RESOURCE - resource};
 }
 
+function addUserCalls(id,body){
+  return new Promise((resolve, reject) => {
+    client.append(`${id}`,body, (reply, error) => {
+      console.log(reply);
+      if (error) reject(false);
+    });
+    resolve(true);
+  });
+}
+
+function deleteCallCache(id){
+  return new Promise((resolve, reject) => {
+    client.del(`${id}`, (reply, error) => {
+      console.log(reply);
+      if (error) reject(false);
+    });
+    resolve(true);
+  });
+}
+
 module.exports = {
   saveToRedis,
   getFromRedis,
   createRedisConnection,
   redisMiddlerware,
   getResouceLeft,
+  addUserCalls,
   incrementResource,
-  decrementResource
+  decrementResource,
+  deleteCallCache
 };

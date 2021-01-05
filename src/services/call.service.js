@@ -13,8 +13,18 @@ function updateConference(body, id) {
 function getConference(query) {
   return Conference.findOne({ where: getConferenceWhere(query) });
 }
-function closeCall(body,id) {
-  return Call.update(body, { where: { id } });
+function getCallById(id) {
+  return Call.findOne({ where: { id } });
+}
+
+function updateCall(call, body) {
+  return call.update(body);
+}
+function closeCall(id) {
+  return Call.update(
+    { status: "CLOSED", end_date: Date.now() },
+    { where: { id } }
+  );
 }
 /**
  * Build where clause for findOne
@@ -29,15 +39,16 @@ function getConferenceWhere(query) {
   return where;
 }
 
-
-function addBridges(body){
-  return Bridge.create(body)
+function addBridges(body) {
+  return Bridge.create(body);
 }
 module.exports = {
   addCall,
   addConference,
   addBridges,
   updateConference,
-  closeCall,
+  getCallById,
+  updateCall,
   getConference,
+  closeCall
 };

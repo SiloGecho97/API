@@ -2,6 +2,8 @@ const userSerice = require("../services/user.service");
 
 const moment = require("moment");
 const { saveToRedis } = require("./redis.controller");
+const redisController = require("./redis.controller");
+const { getUserById } = require("../services/user.service");
 
 function checkUserByPhone(req, res, next) {
   const { phoneNumber } = req.query;
@@ -346,13 +348,89 @@ async function updateUserPrefferedHandler(body) {
 
 function addFriend(req, res, next) {
   addFriendHandler(req.body)
-    .then((resp) => res.status(200).send(resp))
+    .then((resp) =>
+      resp
+        ? res.status(200).send(resp)
+        : res.status(400).send("Faile to Create")
+    )
     .catch((err) => next(err));
 }
 
 async function addFriendHandler(body) {
   const friend = await userSerice.addFriend(body);
   return friend;
+}
+
+function getOneFriend(req, res, next) {
+  getFriendHandler(req.params)
+    .then((resp) =>
+      resp
+        ? res.status(200).send(resp)
+        : res.status(404).send({error:"Not Found"})
+    )
+    .catch((err) => next(err));
+}
+
+async function getFriendHandler(query) {
+  let notCalls = [];
+  const getCalls = await redisController.getFromRedis(`calls:${query.id}`);
+  getCalls ? notCalls.push(...getCalls.split(",")) : null;
+
+  console.log(notCalls)
+  const friend = await userSerice.getOneFriend(query.id,notCalls);
+  if(friend.length>0){
+    const addCache = await redisController.addUserCalls(
+      `calls:${query.id}`,
+      `${friend[0].friendId},`
+    );
+    if (friend) {
+      const user = await userSerice.getUserById(friend[0].friendId);
+      return user;
+    }
+  }
+ 
+  return false;
+}
+
+function getOneUser(req, res, next) {
+  getUserHandler(req.query)
+    .then((resp) =>
+      resp
+        ? res.status(200).send(resp)
+        : res.status(404).send("Failed to Create")
+    )
+    .catch((err) => next(err));
+}
+
+async function getUserHandler(query) {
+  const getCalls = await redisController.getFromRedis(`oncall:${query.id}`);
+  const globals = await redisController.getFromRedis(`calls`);
+  let notCall = [];
+  if (getCalls) {
+    notCall.push(...globals.split(","));
+    notCall.push(...getCalls.split(","));
+    console.log(notCall);
+    const user = await userSerice.getOneUserNext(notCall);
+    const addUserCalls = await redisController.addUserCalls(
+      `calls:${query.id}`,
+      `,${user[0].id}`
+    );
+    const addCalls = await redisController.addUserCalls(
+      `calls`,
+      `${user[0].id},`
+    );
+    return user;
+  } else {
+    notCall.push(...globals.split(","));
+    console.log(notCall);
+    const user = await userSerice.getOneUserNext(notCall);
+    const addUserCalls = await redisController.addUserCalls(
+      `calls:${query.id}`,
+      user[0].id
+    );
+    const addCalls = await redisController.addUserCalls(`calls`, user[0].id);
+    return user;
+  }
 }
 
 module.exports = {
@@ -369,4 +447,6 @@ module.exports = {
   getPreffered,
   updateUserPreffered,
   addFriend,
+  getOneFriend,
+  getOneUser,
 };

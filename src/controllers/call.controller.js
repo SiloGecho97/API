@@ -1,6 +1,10 @@
 const callService = require("../services/call.service");
 const userService = require("../services/user.service");
-const { incrementResource, decrementResource } = require("./redis.controller");
+const {
+  incrementResource,
+  decrementResource,
+  deleteCallCache,
+} = require("./redis.controller");
 
 function updateUserOncall(req, res, next) {
   updateUseronCallHandler(req.params.id)
@@ -58,14 +62,18 @@ function closeCall(req, res, next) {
 }
 
 async function closeCallHandler(id) {
-  const call = await callService.closeCall(
-    { status: "CLOSED", end_date: Date.now() },
-    id
-  );
-  if (call) {
-    decrementResource();
-    return call;
+  const call = await callService.getCallById(id);
+  if(call){
+    const update = await callService.updateCall(call,
+      { status: "CLOSED", end_date: Date.now() }
+    );
+    if (call) {
+      decrementResource();
+      deleteCallCache(`calls:${call.userId}`);
+      return call;
+    }
   }
+ 
 }
 
 function getConference(req, res, next) {
@@ -122,7 +130,6 @@ async function closeConferenceHandler(body) {
 
   if (conference) {
     const call = await callService.closeCall(
-      { status: "CLOSED", end_date: Date.now() },
       body.callId
     );
     decrementResource();
@@ -130,9 +137,31 @@ async function closeConferenceHandler(body) {
   }
 }
 
+function endConference(req, res, next) {
+  endConferenceHandler(req.body)
+    .then((data) => {
+      data ? res.status(200).send(data) : res.status(400).send(false);
+    })
+    .catch((err) => next(err));
+}
+async function endConferenceHandler(body) {
+  // console.log(body);
+  const conference = await callService.updateConference(
+    {
+      status: "CLOSED",
+      end_time: Date.now(),
+    },
+    body.id
+  );
+  if (conference) {
+    return conference;
+  }
+}
 function addBridge(req, res, next) {
   addBridgeHandler(req.body)
-    .then((resp) => resp? res.status(201).send(resp):res.status(400).send("error"))
+    .then((resp) =>
+      resp ? res.status(201).send(resp) : res.status(400).send("error")
+    )
     .catch((err) => next(err));
 }
 
@@ -149,5 +178,6 @@ module.exports = {
   addCall,
   closeCall,
   closeConference,
-  addBridge
+  addBridge,
+  endConference,
 };

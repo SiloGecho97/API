@@ -43,15 +43,34 @@ app.put("/api/conference/close",callController.closeConference)
 /**
  * free 
  * 
- * Close Conference
+ * End Conference
  *
  **/
+app.put("/api/conference/end",callController.endConference)
 
 //Brigdes when two use connect
 app.post("/api/bridge",callController.addBridge)
 
 //Add Friend
 app.post("/api/user/friend",userController.addFriend);
+
+//Get random Friend
+//Should not be taken check its oncall
+//If two user ask the same friend check its status
+app.get("/api/user/:id/friend",userController.getOneFriend)
+
+//Resource management
+//get Resource limitted when try to reach 
+//Release resource if failed and bridge end
+//
+
+
+
+//get user
+app.get("/api/user",userController.getOneUser)
+
+// app.get("/api/")
+
 
 //Resource Manage
 app.get("/api/resource",redisController.getResouceLeft)

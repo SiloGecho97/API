@@ -19,9 +19,13 @@ module.exports = function (sequelize, DataTypes) {
           key: "id",
         },
       },
-      friendId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+      friendId:{
+        type:DataTypes.INTEGER,
+        allowNull:false,
+        references:{
+          model:"user",
+          key:"id"
+        }
       },
       status: {
         type: DataTypes.BOOLEAN,
