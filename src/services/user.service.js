@@ -86,6 +86,7 @@ function getOneUser() {
 
 function getOneUserNext(ids) {
   return User.findAll({
+    attributes: ['id', 'phoneNumber','sexId','ageRengId'],
     where: { id: { [Op.notIn]: ids } },
     order: Sequelize.literal("rand()"),
     limit: 1,

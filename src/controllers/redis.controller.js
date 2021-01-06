@@ -30,9 +30,9 @@ function saveToRedis(phone, status) {
     resolve(true);
   });
 }
-function incrementResource(){
+function holdResource(){
   return new Promise((resolve, reject) => {
-    client.incr(`resource`, (reply, error) => {
+    client.incr(`resource`, (error, reply) => {
       console.log(reply);
       if (error) reject(false);
     });
@@ -40,9 +40,9 @@ function incrementResource(){
   });
 }
 
-function decrementResource(){
+function releaseResource(){
   return new Promise((resolve, reject) => {
-    client.decr(`resource`, (reply, error) => {
+    client.decr(`resource`, (error, reply) => {
       console.log(reply);
       if (error) reject(false);
     });
@@ -75,14 +75,20 @@ async function redisMiddlerwareHandler(id) {
   }
 }
 
-function getResouceLeft(req, res, next) {
+function getResourceLeft(req, res, next) {
+  getResourceLeftHandler()
+    .then((data) =>
+      data ? next() : res.status(400).send(false)
+    )
+    .catch((err) => res.status(200).send(err));
+}
+function getResource(req, res, next) {
   getResourceLeftHandler()
     .then((data) =>
       data ? res.status(200).send(data) : res.status(400).send(false)
     )
     .catch((err) => res.status(200).send(err));
 }
-
 async function getResourceLeftHandler() {
   const resource = await getFromRedis("resource");
   return {resourceLeft:RESOURCE - resource};
@@ -100,22 +106,36 @@ function addUserCalls(id,body){
 
 function deleteCallCache(id){
   return new Promise((resolve, reject) => {
-    client.del(`${id}`, (reply, error) => {
+    client.del(`${id}`, (error, reply) => {
       console.log(reply);
       if (error) reject(false);
     });
-    resolve(true);
+    resolve(reply);
   });
 }
+
+function getOnCallsKeys(id){
+  return new Promise((resolve, reject) => {
+    client.keys(`${id}`, (error, reply) => {
+      if (error) reject(false);
+      resolve(reply);
+    });
+   
+  });
+}
+
 
 module.exports = {
   saveToRedis,
   getFromRedis,
   createRedisConnection,
   redisMiddlerware,
-  getResouceLeft,
+  getResourceLeft,
+  getResource,
   addUserCalls,
-  incrementResource,
-  decrementResource,
-  deleteCallCache
+  releaseResource,
+  holdResource,
+  deleteCallCache,
+  getOnCallsKeys,
+  getResourceLeftHandler
 };

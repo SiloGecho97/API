@@ -65,12 +65,28 @@ app.get("/api/user/:id/friend",userController.getOneFriend)
 //
 
 
+//Failed to connect user
+app.put("/api/user/failed",userController.releaseResource)
+
 
 //get user
-app.get("/api/user",userController.getOneUser)
+//add resource available check
+app.get("/api/user",redisController.getResourceLeft, userController.getOneUser)
 
-// app.get("/api/")
 
 
 //Resource Manage
-app.get("/api/resource",redisController.getResouceLeft)
+app.get("/api/resource",redisController.getResource)
+// app.put("/api/resource/release",redisController.releaseResource)
+
+//two type of hangup scenarios outgoing and ingoing
+
+
+
+//outgoing call logs
+//resource management
+
+
+//get user with chat id
+//make chat id 6 digit number
+

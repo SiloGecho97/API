@@ -1,8 +1,8 @@
 const callService = require("../services/call.service");
 const userService = require("../services/user.service");
 const {
-  incrementResource,
-  decrementResource,
+  holdResource,
+  releaseResource,
   deleteCallCache,
 } = require("./redis.controller");
 
@@ -48,7 +48,7 @@ async function addCallHandler(body) {
   const call = await callService.addCall(body);
   if (call) {
     const user = userService.updateUser(user, { isOnCall: true });
-    incrementResource();
+    holdResource();
     return call;
   }
 }
@@ -68,8 +68,10 @@ async function closeCallHandler(id) {
       { status: "CLOSED", end_date: Date.now() }
     );
     if (call) {
-      decrementResource();
-      deleteCallCache(`calls:${call.userId}`);
+      releaseResource();
+      //Delete Main user cache
+      //delete if it have suspedent user 
+      deleteCallCache(`oncall:${call.userId}`);
       return call;
     }
   }
@@ -132,7 +134,7 @@ async function closeConferenceHandler(body) {
     const call = await callService.closeCall(
       body.callId
     );
-    decrementResource();
+    releaseResource();
     return conference;
   }
 }

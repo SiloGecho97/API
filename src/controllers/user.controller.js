@@ -366,7 +366,7 @@ function getOneFriend(req, res, next) {
     .then((resp) =>
       resp
         ? res.status(200).send(resp)
-        : res.status(404).send({error:"Not Found"})
+        : res.status(404).send({ error: "Not Found" })
     )
     .catch((err) => next(err));
 }
@@ -376,9 +376,9 @@ async function getFriendHandler(query) {
   const getCalls = await redisController.getFromRedis(`calls:${query.id}`);
   getCalls ? notCalls.push(...getCalls.split(",")) : null;
 
-  console.log(notCalls)
-  const friend = await userSerice.getOneFriend(query.id,notCalls);
-  if(friend.length>0){
+  console.log(notCalls);
+  const friend = await userSerice.getOneFriend(query.id, notCalls);
+  if (friend.length > 0) {
     const addCache = await redisController.addUserCalls(
       `calls:${query.id}`,
       `${friend[0].friendId},`
@@ -388,7 +388,7 @@ async function getFriendHandler(query) {
       return user;
     }
   }
- 
+
   return false;
 }
 
@@ -401,35 +401,42 @@ function getOneUser(req, res, next) {
     )
     .catch((err) => next(err));
 }
-
+function extactIdFromCache(calls) {
+  return calls.map((item) => {
+    return item.split(':')[1]
+  });
+}
 async function getUserHandler(query) {
-  const getCalls = await redisController.getFromRedis(`oncall:${query.id}`);
-  const globals = await redisController.getFromRedis(`calls`);
   let notCall = [];
-  if (getCalls) {
-    notCall.push(...globals.split(","));
-    notCall.push(...getCalls.split(","));
-    console.log(notCall);
-    const user = await userSerice.getOneUserNext(notCall);
+  const getCalls = await redisController.getOnCallsKeys(`oncall:*`);
+  notCall = extactIdFromCache(getCalls);
+  const user = await userSerice.getOneUserNext(notCall);
+  if (user.length > 0) {
     const addUserCalls = await redisController.addUserCalls(
-      `calls:${query.id}`,
-      `,${user[0].id}`
+      `oncall:${user[0].id}`,
+      `${user[0].phoneNumber}`
     );
-    const addCalls = await redisController.addUserCalls(
-      `calls`,
-      `${user[0].id},`
-    );
+
     return user;
-  } else {
-    notCall.push(...globals.split(","));
-    console.log(notCall);
-    const user = await userSerice.getOneUserNext(notCall);
-    const addUserCalls = await redisController.addUserCalls(
-      `calls:${query.id}`,
-      user[0].id
-    );
-    const addCalls = await redisController.addUserCalls(`calls`, user[0].id);
-    return user;
+  }
+  return false;
+}
+
+function releaseResource(req, res, next) {
+  releaseResourceHandler(req.body)
+    .then((resp) =>
+      resp
+        ? res.status(200).send(resp)
+        : res.status(400).send("Failed to release")
+    )
+    .catch((err) => next(err));
+}
+
+async function releaseResourceHandler(body){
+  const removeCache = await redisController.deleteCallCache(`oncall:${body.id}`);
+  if(removeCache){
+    const resource = await redisController.releaseResource();
+    return true;
   }
 }
 
@@ -449,4 +456,5 @@ module.exports = {
   addFriend,
   getOneFriend,
   getOneUser,
+  releaseResource
 };
