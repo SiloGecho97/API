@@ -30,7 +30,7 @@ function saveToRedis(phone, status) {
     resolve(true);
   });
 }
-function holdResource(){
+function holdResource() {
   return new Promise((resolve, reject) => {
     client.incr(`resource`, (error, reply) => {
       console.log(reply);
@@ -40,7 +40,7 @@ function holdResource(){
   });
 }
 
-function releaseResource(){
+function releaseResource() {
   return new Promise((resolve, reject) => {
     client.decr(`resource`, (error, reply) => {
       console.log(reply);
@@ -53,7 +53,7 @@ function releaseResource(){
 function getFromRedis(id) {
   return new Promise((resolve, reject) => {
     client.get(id, (error, reply) => {
-      console.log(reply,error)
+      console.log(reply, error);
       if (error) reject(error);
       resolve(reply);
     });
@@ -77,9 +77,7 @@ async function redisMiddlerwareHandler(id) {
 
 function getResourceLeft(req, res, next) {
   getResourceLeftHandler()
-    .then((data) =>
-      data ? next() : res.status(400).send(false)
-    )
+    .then((data) => (data ? next() : res.status(400).send(false)))
     .catch((err) => res.status(200).send(err));
 }
 function getResource(req, res, next) {
@@ -91,12 +89,12 @@ function getResource(req, res, next) {
 }
 async function getResourceLeftHandler() {
   const resource = await getFromRedis("resource");
-  return {resourceLeft:RESOURCE - resource};
+  return { resourceLeft: RESOURCE - resource };
 }
 
-function addUserCalls(id,body){
+function addUserCalls(id, body) {
   return new Promise((resolve, reject) => {
-    client.append(`${id}`,body, (reply, error) => {
+    client.append(`${id}`, body, (reply, error) => {
       console.log(reply);
       if (error) reject(false);
     });
@@ -104,26 +102,35 @@ function addUserCalls(id,body){
   });
 }
 
-function deleteCallCache(id){
+function deleteCallCache(id) {
   return new Promise((resolve, reject) => {
     client.del(`${id}`, (error, reply) => {
       console.log(reply);
       if (error) reject(false);
-    });
-    resolve(reply);
+      resolve(reply);
+    });  
   });
 }
 
-function getOnCallsKeys(id){
+function getOnCallsKeys(id) {
   return new Promise((resolve, reject) => {
     client.keys(`${id}`, (error, reply) => {
       if (error) reject(false);
       resolve(reply);
     });
-   
   });
 }
 
+async function getConference(query) {
+  let conference = await getOnCallsKeys(`conference:${query.gender}:*`);
+  conference = await Promise.all(
+    conference.map(async (item) => {
+      item = await getFromRedis(item);
+      return  JSON.parse(item);
+    })
+  );
+  return conference.pop();
+}
 
 module.exports = {
   saveToRedis,
@@ -137,5 +144,6 @@ module.exports = {
   holdResource,
   deleteCallCache,
   getOnCallsKeys,
-  getResourceLeftHandler
+  getResourceLeftHandler,
+  getConference,
 };

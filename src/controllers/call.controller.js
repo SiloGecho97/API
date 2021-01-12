@@ -1,10 +1,14 @@
+const { Conference } = require("../models");
 const callService = require("../services/call.service");
 const userService = require("../services/user.service");
+const redisController = require("./redis.controller");
 const {
   holdResource,
   releaseResource,
   deleteCallCache,
 } = require("./redis.controller");
+
+console.log("Am called");
 
 function updateUserOncall(req, res, next) {
   updateUseronCallHandler(req.params.id)
@@ -30,10 +34,18 @@ function addConference(req, res, next) {
 }
 
 async function addConferenceHandler(body) {
-  const conference = await callService.addConference(body);
+  const conference = await callService.addConference({
+    ...body,
+    userId_1: body.userId,
+  });
   if (conference) {
-    return conference;
+    await redisController.addUserCalls(
+      `conference:${conference.gender}:${conference.id}`,
+      JSON.stringify(conference)
+    );
+    return { success: true, conferenceId: conference.id };
   }
+  return { success: false };
 }
 
 function addCall(req, res, next) {
@@ -45,9 +57,17 @@ function addCall(req, res, next) {
 }
 
 async function addCallHandler(body) {
+  console.log(body);
   const call = await callService.addCall(body);
   if (call) {
-    const user = userService.updateUser(user, { isOnCall: true });
+    const user = await userService.getUserById(body.userId);
+    if (user) {
+      const update = userService.updateUser(user, { isOnCall: true });
+    }
+    await redisController.addUserCalls(
+      `oncall:${user.id}`,
+      `${user.phoneNumber}`
+    );
     holdResource();
     return call;
   }
@@ -61,34 +81,49 @@ function closeCall(req, res, next) {
     .catch((err) => next(err));
 }
 
-async function closeCallHandler(id) {
-  const call = await callService.getCallById(id);
-  if(call){
-    const update = await callService.updateCall(call,
-      { status: "CLOSED", end_date: Date.now() }
-    );
+async function closeCallHandler(userId) {
+  const call = await callService.getCallByUserId(userId);
+  if (call) {
+    const update = await callService.updateCall(call, {
+      status: "CLOSED",
+      end_date: Date.now(),
+    });
     if (call) {
       releaseResource();
       //Delete Main user cache
-      //delete if it have suspedent user 
+      //delete if it have suspedent user
       deleteCallCache(`oncall:${call.userId}`);
       return call;
     }
   }
- 
 }
 
 function getConference(req, res, next) {
   getConferenceHandler(req.query)
     .then((data) => {
-      data ? res.status(200).send(data) : res.status(400).send(false);
+      data
+        ? res.status(200).send(data)
+        : res.status(400).send({ success: false, error: "Failed" });
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({ success: false, error: err });
+    });
 }
 
 async function getConferenceHandler(query) {
-  const conference = await callService.getConference(query);
-  return conference;
+  const conference = await redisController.getConference(query);
+  // const conference = await callService.getConference(query);
+  console.log(conference, "Conf");
+  if (conference) {
+    await occupyConferenceHandler({
+      userId: query.userId,
+      conferenceId: conference.id,
+    });
+    await deleteCallCache(`conference:${conference.gender}:${conference.id}`);
+    return { success: true, conferenceId: conference.id, isAvailable: true };
+  }
+  return { success: true, isAvailable: false };
 }
 
 function occupyConference(req, res, next) {
@@ -96,19 +131,19 @@ function occupyConference(req, res, next) {
     .then((data) => {
       data ? res.status(200).send(data) : res.status(400).send(false);
     })
-    .catch((err) => res.status(500).send(err));
+    .catch((err) => next(err));
 }
 
-async function occupyConferenceHandler(query) {
+async function occupyConferenceHandler(body) {
   const conference = await callService.updateConference(
     {
       status: "OCCUPIED",
-      callId2: query.callId,
+      userId_2: body.userId,
     },
-    query.id
+    body.conferenceId
   );
   if (conference) {
-    return conference;
+    return true;
   }
 }
 
@@ -131,9 +166,7 @@ async function closeConferenceHandler(body) {
   );
 
   if (conference) {
-    const call = await callService.closeCall(
-      body.callId
-    );
+    const call = await callService.closeCall(body.callId);
     releaseResource();
     return conference;
   }
@@ -146,6 +179,7 @@ function endConference(req, res, next) {
     })
     .catch((err) => next(err));
 }
+
 async function endConferenceHandler(body) {
   // console.log(body);
   const conference = await callService.updateConference(
@@ -182,4 +216,5 @@ module.exports = {
   closeConference,
   addBridge,
   endConference,
+  addCallHandler,
 };

@@ -19,18 +19,25 @@ app.post("/api/preffered",controller.updateUserPreffered)
 
 //oncalls APIS
 app.put("/api/:id/isoncall",callController.updateUserOncall)
+
+//isavailable
+
+
 //add to call
 app.post("/api/call",callController.addCall);
 
 //Close the call
 app.put("/api/call/close/:id",callController.closeCall)
+
 //API Check available conference to join
 app.get("/api/conference",callController.getConference);
+
 //add to conference with preferance
 app.post("/api/conference",callController.addConference);
 
 //If available conference join the two conferance (reserve and occupy the conferance)
 app.put("/api/conference/join",callController.occupyConference);
+
 /**
  * Hangup time
  * 
@@ -89,4 +96,6 @@ app.get("/api/resource",redisController.getResource)
 
 //get user with chat id
 //make chat id 6 digit number
+//is availabale
+app.get("/api/user/:id",userController.getUser)
 

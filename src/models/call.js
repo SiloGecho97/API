@@ -13,7 +13,8 @@ module.exports = function (sequelize, DataTypes) {
             
             start_date:{
                 type:DataTypes.DATE,
-                allowNull:false
+                allowNull:false,
+                defaultValue:sequelize.NOW
             },
             end_date:{
                 type:DataTypes.DATE,

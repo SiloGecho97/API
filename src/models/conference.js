@@ -9,25 +9,28 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: false,
         autoIncrement: true,
       },
-      callId1: {
+      userId_1: {
         type: DataTypes.INTEGER(11),
         allowNull: false,
       },
-      callId2: {
+      userId_2: {
         type: DataTypes.INTEGER(11),
         allowNull: true,
       },
       gender: {
         type: DataTypes.INTEGER(11),
         allowNull: true,
+        defaultValue:3,
       },
       age: {
         type: DataTypes.INTEGER(11),
         allowNull: true,
+        defaultValue:5,
       },
       language: {
         type: DataTypes.INTEGER(11),
         allowNull: true,
+        defaultValue:10,
       },
       status: {
         type: DataTypes.ENUM("WAITING", "OCCUPIED", "CLOSED"),

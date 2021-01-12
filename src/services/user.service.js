@@ -35,7 +35,7 @@ function getStatusById(id) {
  * @returns user
  */
 function getUserById(id) {
-  return User.findOne({ where: { id } }).catch((err) => console.log(err));
+  return User.findOne({ attributes: ['id', 'phoneNumber','isOnCall'], where: { id } }).catch((err) => console.log(err));
 }
 /**
  *
@@ -84,13 +84,24 @@ function getOneUser() {
   return User.findAll({ order: Sequelize.literal("rand()"), limit: 1 });
 }
 
-function getOneUserNext(ids) {
+function getOneUserNext(ids,query) {
   return User.findAll({
     attributes: ['id', 'phoneNumber','sexId','ageRengId'],
-    where: { id: { [Op.notIn]: ids } },
+    where: { id: { [Op.notIn]: ids },...getWhere(query) },
     order: Sequelize.literal("rand()"),
     limit: 1,
   });
+}
+/**
+ * Build where clause for findOne
+ * @param {*} query
+ */
+function getWhere(query) {
+  let where = {};
+  query.sex ? (where["sexId"] = query.sex) : {};
+  query.age ? (where["ageRengId"] = query.age) : {};
+  query.language ? (where["languageId"] = query.language) : {};
+  return where;
 }
 
 module.exports = {
