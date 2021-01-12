@@ -28,18 +28,30 @@ async function updateUseronCallHandler(id) {
 function addConference(req, res, next) {
   addConferenceHandler(req.body)
     .then((data) =>
-      data ? res.status(200).send(data) : res.status(400).send(false)
+      data
+        ? res.status(200).send(data)
+        : res.status(400).send({ success: false })
     )
-    .catch((err) => res.status(500).send(err));
+    .catch((err) =>
+      res.status(500).send({
+        success: false,
+        error: "Internal Server Error. User may not exist.",
+      })
+    );
 }
 
 async function addConferenceHandler(body) {
+  // const user = await userService.getUserById(body.userId);
+  // if (!user) {
+  //   throw "Not Found";
+  // }
   const conference = await callService.addConference({
     ...body,
     userId_1: body.userId,
+    start_date: Date.now(),
   });
   if (conference) {
-    await redisController.addUserCalls(
+    await redisController.cacheInRedis(
       `conference:${conference.gender}:${conference.id}`,
       JSON.stringify(conference)
     );
@@ -64,7 +76,7 @@ async function addCallHandler(body) {
     if (user) {
       const update = userService.updateUser(user, { isOnCall: true });
     }
-    await redisController.addUserCalls(
+    await redisController.cacheInRedis(
       `oncall:${user.id}`,
       `${user.phoneNumber}`
     );
@@ -74,15 +86,21 @@ async function addCallHandler(body) {
 }
 
 function closeCall(req, res, next) {
-  closeCallHandler(req.params.id)
+  let { userId, callId } = req.body;
+  if (!userId || !callId) {
+    res.status(400).send({ success: false, error: "invalid request" });
+  }
+  closeCallHandler(userId,callId)
     .then((data) =>
-      data ? res.status(200).send(true) : res.status(400).send(false)
+      data
+        ? res.status(200).send({ success: true })
+        : res.status(400).send({ success: false })
     )
     .catch((err) => next(err));
 }
 
-async function closeCallHandler(userId) {
-  const call = await callService.getCallByUserId(userId);
+async function closeCallHandler(userId,callId) {
+  const call = await callService.getCallByUserId(callId);
   if (call) {
     const update = await callService.updateCall(call, {
       status: "CLOSED",
@@ -166,8 +184,8 @@ async function closeConferenceHandler(body) {
   );
 
   if (conference) {
-    const call = await callService.closeCall(body.callId);
-    releaseResource();
+    // await closeCallHandler(body.userId_1);
+
     return conference;
   }
 }
@@ -175,9 +193,11 @@ async function closeConferenceHandler(body) {
 function endConference(req, res, next) {
   endConferenceHandler(req.body)
     .then((data) => {
-      data ? res.status(200).send(data) : res.status(400).send(false);
+      data
+        ? res.status(200).send(data)
+        : res.status(400).send({ success: false });
     })
-    .catch((err) => next(err));
+    .catch((err) => res.status(400).send({ success: false }));
 }
 
 async function endConferenceHandler(body) {
@@ -187,10 +207,10 @@ async function endConferenceHandler(body) {
       status: "CLOSED",
       end_time: Date.now(),
     },
-    body.id
+    body.conferenceId
   );
   if (conference) {
-    return conference;
+    return conference[0] ? { success: true } : { success: false };
   }
 }
 function addBridge(req, res, next) {

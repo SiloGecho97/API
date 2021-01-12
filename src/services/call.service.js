@@ -13,8 +13,8 @@ function updateConference(body, id) {
 function getConference(query) {
   return Conference.findOne({ where: getConferenceWhere(query) });
 }
-function getCallByUserId(id) {
-  return Call.findOne({ where: { userId } });
+function getCallById(callId) {
+  return Call.findOne({ where: { callId } });
 }
 
 function updateCall(call, body) {
@@ -49,7 +49,7 @@ module.exports = {
   addConference,
   addBridges,
   updateConference,
-  getCallByUserId,
+  getCallById,
   updateCall,
   getConference,
   closeCall

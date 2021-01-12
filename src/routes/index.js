@@ -20,14 +20,12 @@ app.post("/api/preffered",controller.updateUserPreffered)
 //oncalls APIS
 app.put("/api/:id/isoncall",callController.updateUserOncall)
 
-//isavailable
-
 
 //add to call
 app.post("/api/call",callController.addCall);
 
 //Close the call
-app.put("/api/call/close/:id",callController.closeCall)
+app.put("/api/call/close",callController.closeCall)
 
 //API Check available conference to join
 app.get("/api/conference",callController.getConference);
@@ -64,7 +62,7 @@ app.post("/api/user/friend",userController.addFriend);
 //Get random Friend
 //Should not be taken check its oncall
 //If two user ask the same friend check its status
-app.get("/api/user/:id/friend",userController.getOneFriend)
+app.get("/api/user/friend",userController.getOneFriend)
 
 //Resource management
 //get Resource limitted when try to reach 
@@ -78,7 +76,7 @@ app.put("/api/user/failed",userController.releaseResource)
 
 //get user
 //add resource available check
-app.get("/api/user",redisController.getResourceLeft, userController.getOneUser)
+app.get("/api/newfriend",redisController.getResourceLeft, userController.getOneUser)
 
 
 

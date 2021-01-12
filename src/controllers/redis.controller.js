@@ -92,9 +92,9 @@ async function getResourceLeftHandler() {
   return { resourceLeft: RESOURCE - resource };
 }
 
-function addUserCalls(id, body) {
+function cacheInRedis(id, body) {
   return new Promise((resolve, reject) => {
-    client.append(`${id}`, body, (reply, error) => {
+    client.set(`${id}`, body, (reply, error) => {
       console.log(reply);
       if (error) reject(false);
     });
@@ -139,7 +139,7 @@ module.exports = {
   redisMiddlerware,
   getResourceLeft,
   getResource,
-  addUserCalls,
+  cacheInRedis,
   releaseResource,
   holdResource,
   deleteCallCache,

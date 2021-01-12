@@ -4,13 +4,11 @@ module.exports = function (sequelize, DataTypes) {
     let call = sequelize.define(
         "call",
         {
-            id: {
+            callId: {
                 primaryKey: true,
-                type: DataTypes.INTEGER,
+                type: DataTypes.STRING,
                 allowNull: false,
-                autoIncrement: true,
             },
-            
             start_date:{
                 type:DataTypes.DATE,
                 allowNull:false,
@@ -21,11 +19,6 @@ module.exports = function (sequelize, DataTypes) {
             },
             userId:{
                 type:DataTypes.INTEGER(11)
-            },
-            uuid:{
-                type:DataTypes.UUID,
-                defaultValue: DataTypes.UUIDV1,
-                unique:true
             },
             status: {
                 type: DataTypes.ENUM("ACTIVE", "CLOSED"),
