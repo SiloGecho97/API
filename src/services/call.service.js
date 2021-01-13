@@ -7,11 +7,17 @@ function addConference(body) {
   return Conference.create(body);
 }
 
-function updateConference(body, id) {
+function updateConference(body, id,conference) {
+  if(conference){
+    return conference.update(body);
+  }
   return Conference.update(body, { where: { id } });
 }
 function getConference(query) {
   return Conference.findOne({ where: getConferenceWhere(query) });
+}
+function getConferenceById(id) {
+  return Conference.findOne({ where: { id } });
 }
 function getCallById(callId) {
   return Call.findOne({ where: { callId } });
@@ -20,6 +26,7 @@ function getCallById(callId) {
 function updateCall(call, body) {
   return call.update(body);
 }
+
 function closeCall(id) {
   return Call.update(
     { status: "CLOSED", end_date: Date.now() },
@@ -52,5 +59,6 @@ module.exports = {
   getCallById,
   updateCall,
   getConference,
+  getConferenceById,
   closeCall
 };

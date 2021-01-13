@@ -90,7 +90,7 @@ function closeCall(req, res, next) {
   if (!userId || !callId) {
     res.status(400).send({ success: false, error: "invalid request" });
   }
-  closeCallHandler(userId,callId)
+  closeCallHandler(userId, callId)
     .then((data) =>
       data
         ? res.status(200).send({ success: true })
@@ -99,8 +99,8 @@ function closeCall(req, res, next) {
     .catch((err) => next(err));
 }
 
-async function closeCallHandler(userId,callId) {
-  const call = await callService.getCallByUserId(callId);
+async function closeCallHandler(userId, callId) {
+  const call = await callService.getCallById(callId);
   if (call) {
     const update = await callService.updateCall(call, {
       status: "CLOSED",
@@ -110,6 +110,7 @@ async function closeCallHandler(userId,callId) {
       releaseResource();
       //Delete Main user cache
       //delete if it have suspedent user
+      // const user = await userService.updateUser()
       deleteCallCache(`oncall:${call.userId}`);
       return call;
     }
@@ -202,15 +203,23 @@ function endConference(req, res, next) {
 
 async function endConferenceHandler(body) {
   // console.log(body);
-  const conference = await callService.updateConference(
-    {
-      status: "CLOSED",
-      end_time: Date.now(),
-    },
-    body.conferenceId
-  );
-  if (conference) {
-    return conference[0] ? { success: true } : { success: false };
+  const conf = await callService.getConferenceById(body.conferenceId);
+  if (conf) {
+    const conference = await callService.updateConference(
+      {
+        status: "CLOSED",
+        end_time: Date.now(),
+      },
+      body.conferenceId,
+      conf
+    );
+    console.log(conference)
+    if (conference) {
+      await redisController.deleteCallCache(
+        `conference:${conf.gender}:${body.conferenceId}`
+      );
+      return conference ? { success: true } : { success: false };
+    }
   }
 }
 function addBridge(req, res, next) {

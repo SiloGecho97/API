@@ -15,7 +15,7 @@ function checkUserByPhone(req, res, next) {
     .then((resp) => res.status(200).send(resp))
     .catch((err) => {
       console.log(err);
-      res.status(500).send({ sucess:false, message: err });
+      res.status(500).send({ sucess: false, message: err });
     });
 }
 
@@ -31,13 +31,11 @@ async function checkUserHandler(phoneNumber, callId) {
   if (user) {
     const userStatus = await userSerice.getStatusById(user.regStatus);
 
-  const addCaller =  await addCallHandler({
+    const addCaller = await addCallHandler({
       callId: callId,
       userId: user.id,
       start_date: Date.now(),
     });
-
-  
 
     return {
       success: true,
@@ -372,7 +370,7 @@ function addFriend(req, res, next) {
     .then((resp) =>
       resp
         ? res.status(200).send(resp)
-        : res.status(400).send("Faile to Create")
+        : res.status(400).send({ success: false, error: "Failed to Create" })
     )
     .catch((err) => next(err));
 }
@@ -387,21 +385,21 @@ function getOneFriend(req, res, next) {
     .then((resp) =>
       resp
         ? res.status(200).send(resp)
-        : res.status(404).send({ error: "Not Found" })
+        : res.status(404).send({ success: false, error: "Not Found" })
     )
     .catch((err) => next(err));
 }
 
 async function getFriendHandler(query) {
   let notCalls = [];
-  const getCalls = await redisController.getFromRedis(`calls:${query.id}`);
+  const getCalls = await redisController.getFromRedis(`oncall:${query.id}`);
   getCalls ? notCalls.push(...getCalls.split(",")) : null;
 
   // console.log(notCalls);
   const friend = await userSerice.getOneFriend(query.id, notCalls);
   if (friend.length > 0) {
     const addCache = await redisController.cacheInRedis(
-      `calls:${query.id}`,
+      `oncall:${query.id}`,
       `${friend[0].friendId},`
     );
     if (friend) {
@@ -418,7 +416,7 @@ function getOneUser(req, res, next) {
     .then((resp) =>
       resp
         ? res.status(200).send(resp)
-        : res.status(404).send("Failed to Create")
+        : res.status(404).send({ success: false, error: "Failed to Create" })
     )
     .catch((err) => next(err));
 }
@@ -447,9 +445,9 @@ async function getUserHandler(query) {
     );
     // const usertry = await redisController.cacheInRedis(`usercall:${query.id}`, `${user[0].phoneNumber}`)
     await holdResource();
-    return { success: true, newFriend:newFriend[0] };
+    return { success: true, isAvaliable: true, user: newFriend[0] };
   }
-  return {sucess:false };
+  return { success: false, isAvaliable: false };
 }
 
 function releaseResource(req, res, next) {
@@ -491,7 +489,11 @@ async function getUserByIdHandler(id) {
   if (!check) {
     const user = await userSerice.getUserById(id);
     if (user) {
-      return { sucess: true, isavailable: true, phoneNumber: user.phoneNumber };
+      return {
+        success: true,
+        isavailable: true,
+        phoneNumber: user.phoneNumber,
+      };
     }
   }
   return { success: false, isavailable: false };

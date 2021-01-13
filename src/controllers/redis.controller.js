@@ -94,7 +94,7 @@ async function getResourceLeftHandler() {
 
 function cacheInRedis(id, body) {
   return new Promise((resolve, reject) => {
-    client.set(`${id}`, body, (reply, error) => {
+    client.set(`${id}`, body,'EX', 5400, (reply, error) => {
       console.log(reply);
       if (error) reject(false);
     });
