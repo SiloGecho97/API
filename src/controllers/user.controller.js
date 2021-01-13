@@ -443,7 +443,7 @@ async function getUserHandler(query) {
       `oncall:${newFriend[0].id}`,
       `${newFriend[0].phoneNumber}`
     );
-    // const usertry = await redisController.cacheInRedis(`usercall:${query.id}`, `${user[0].phoneNumber}`)
+    const usertry = await redisController.cacheAppendInRedis(`usercall:${query.id}`, `${newFriend[0].id},`)
     await holdResource();
     return { success: true, isAvaliable: true, user: newFriend[0] };
   }

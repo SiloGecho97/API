@@ -1,4 +1,4 @@
-const { Conference, Call, Bridge } = require("../models");
+const { Conference, Call, Bridge, OutGoing_Call } = require("../models");
 
 function addCall(body) {
   return Call.create(body);
@@ -7,8 +7,8 @@ function addConference(body) {
   return Conference.create(body);
 }
 
-function updateConference(body, id,conference) {
-  if(conference){
+function updateConference(body, id, conference) {
+  if (conference) {
     return conference.update(body);
   }
   return Conference.update(body, { where: { id } });
@@ -50,7 +50,12 @@ function addBridges(body) {
   return Bridge.create(body);
 }
 
-
+function addOutGoing(body) {
+  return OutGoing_Call.create(body);
+}
+function closeOutGoing(body, callId) {
+  return OutGoing_Call.update(body, { where: { callId } });
+}
 module.exports = {
   addCall,
   addConference,
@@ -60,5 +65,7 @@ module.exports = {
   updateCall,
   getConference,
   getConferenceById,
-  closeCall
+  closeCall,
+  addOutGoing,
+  closeOutGoing,
 };

@@ -110,7 +110,17 @@ async function closeCallHandler(userId, callId) {
       releaseResource();
       //Delete Main user cache
       //delete if it have suspedent user
-      // const user = await userService.updateUser()
+      const userscall = await redisController.getFromRedis(
+        `usercall:${userId}`
+      );
+
+      userscall.split(",").map((item) => {
+        console.log(item);
+        deleteCallCache(`oncall:${item}`);
+      });
+
+      console.log(userscall, "users");
+
       deleteCallCache(`oncall:${call.userId}`);
       return call;
     }
@@ -213,7 +223,7 @@ async function endConferenceHandler(body) {
       body.conferenceId,
       conf
     );
-    console.log(conference)
+    console.log(conference);
     if (conference) {
       await redisController.deleteCallCache(
         `conference:${conf.gender}:${body.conferenceId}`
@@ -235,6 +245,37 @@ async function addBridgeHandler(body) {
   return bridges;
 }
 
+function addOutGoingCall(req, res, next) {
+  addOutGoingCallHandler(req.body)
+    .then((resp) =>
+      resp ? res.status(201).send(resp) : res.status(400).send("error")
+    )
+    .catch((err) => next(err));
+}
+
+async function addOutGoingCallHandler(body) {
+  const bridges = await callService.addOutGoing(body);
+  return bridges;
+}
+
+function closeOutgoing(req, res, next) {
+  closeOutgoingHandler(req.body)
+    .then((resp) =>
+      resp
+        ? res.status(201).send(resp)
+        : res.status(400).send({ success: false, error: "error" })
+    )
+    .catch((err) => next(err));
+}
+
+async function closeOutgoingHandler(body) {
+  const bridges = await callService.closeOutGoing(
+    { status: "CLOSED", end_time: Date.now() },
+    body.callId
+  );
+  return bridges[0] ? { success: true } : { success: false };
+}
+
 module.exports = {
   updateUserOncall,
   addConference,
@@ -246,4 +287,6 @@ module.exports = {
   addBridge,
   endConference,
   addCallHandler,
+  addOutGoingCall,
+  closeOutgoing,
 };

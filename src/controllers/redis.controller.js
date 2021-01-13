@@ -102,6 +102,16 @@ function cacheInRedis(id, body) {
   });
 }
 
+function cacheAppendInRedis(id, body) {
+  return new Promise((resolve, reject) => {
+    client.append(`${id}`, body, (reply, error) => {
+      console.log(reply);
+      if (error) reject(false);
+    });
+    resolve(true);
+  });
+}
+
 function deleteCallCache(id) {
   return new Promise((resolve, reject) => {
     client.del(`${id}`, (error, reply) => {
@@ -146,4 +156,5 @@ module.exports = {
   getOnCallsKeys,
   getResourceLeftHandler,
   getConference,
+  cacheAppendInRedis
 };

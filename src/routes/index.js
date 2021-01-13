@@ -43,6 +43,7 @@ app.put("/api/conference/join",callController.occupyConference);
  * return the other user to the main menu
  * 
 */
+
 app.put("/api/conference/close",callController.closeConference)
 /**
  * free 
@@ -76,22 +77,18 @@ app.put("/api/user/failed",userController.releaseResource)
 //add resource available check
 app.get("/api/newfriend",redisController.getResourceLeft, userController.getOneUser)
 
-
-
 //Resource Manage
 app.get("/api/resource",redisController.getResource)
 // app.put("/api/resource/release",redisController.releaseResource)
 
 //two type of hangup scenarios outgoing and ingoing
 
-
-
 //outgoing call logs
 //resource management
-
+app.post("/api/outgoing",callController.addOutGoingCall)
+app.put("/api/outgoing/close",callController.closeOutgoing)
 
 //get user with chat id
 //make chat id 6 digit number
-//is availabale
 app.get("/api/user/:id",userController.getUser)
 
