@@ -1,6 +1,6 @@
 module.exports = function (sequelize, DataTypes) {
     let bridge = sequelize.define(
-      "bridge",
+      "bridges",
       {
         id: {
           primaryKey: true,
@@ -8,11 +8,11 @@ module.exports = function (sequelize, DataTypes) {
           allowNull: false,
           autoIncrement: true,
         },
-        callId1: {
+        callerId: {
           type: DataTypes.INTEGER(11),
           allowNull: false,
         },
-        callId2: {
+        calleeId: {
           type: DataTypes.INTEGER(11),
           allowNull: true,
         },
@@ -24,7 +24,7 @@ module.exports = function (sequelize, DataTypes) {
         start_time:{
           type:DataTypes.DATE,
           allowNull:true,
-          defaultValue:sequelize.NOW
+          defaultValue:DataTypes.NOW
         },
         end_time:{
           type:DataTypes.DATE,
@@ -33,7 +33,7 @@ module.exports = function (sequelize, DataTypes) {
       {
         timestamps: false,
         freezeTableName: true,
-        tableName: "bridge",
+        tableName: "bridges",
       }
     );
   

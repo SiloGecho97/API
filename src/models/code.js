@@ -4,19 +4,16 @@ module.exports = function (sequelize, DataTypes) {
     let code = sequelize.define(
         "code",
         {
-            id: {
-                primaryKey: true,
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                autoIncrement: true,
-            },
+            
             code: {
-                type: DataTypes.STRING(5),
+                primaryKey: true,
+                type: DataTypes.STRING(7),
                 allowNull: false,
             },
             isUsed: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
+                defaultValue:0
             },
         },
         {

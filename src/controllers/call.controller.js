@@ -1,4 +1,3 @@
-const { Conference } = require("../models");
 const callService = require("../services/call.service");
 const userService = require("../services/user.service");
 const redisController = require("./redis.controller");
@@ -113,14 +112,16 @@ async function closeCallHandler(userId, callId) {
       const userscall = await redisController.getFromRedis(
         `usercall:${userId}`
       );
+      if (userscall) {
+        userscall.split(",").map((item) => {
+          if(item){
+            releaseResource();
+            deleteCallCache(`oncall:${item}`);
+          }
+        });
 
-      userscall.split(",").map((item) => {
-        console.log(item);
-        deleteCallCache(`oncall:${item}`);
-      });
-
-      console.log(userscall, "users");
-
+        deleteCallCache(`usercall:${userId}`);
+      }
       deleteCallCache(`oncall:${call.userId}`);
       return call;
     }
@@ -242,7 +243,25 @@ function addBridge(req, res, next) {
 
 async function addBridgeHandler(body) {
   const bridges = await callService.addBridges(body);
-  return bridges;
+  return { success: true, id: bridges.id };
+}
+
+function closeBridge(req, res, next) {
+  closeBridgeHandler(req.body)
+    .then((resp) =>
+      resp
+        ? res.status(201).send(resp)
+        : res.status(400).send({ success: false, error: "error" })
+    )
+    .catch((err) => next(err));
+}
+
+async function closeBridgeHandler(body) {
+  const bridges = await callService.closeBridge(
+    { end_time: Date.now(), status: "CLOSED" },
+    body.id
+  );
+  return bridges[0] ? { success: true } : { success: false };
 }
 
 function addOutGoingCall(req, res, next) {
@@ -250,7 +269,7 @@ function addOutGoingCall(req, res, next) {
     .then((resp) =>
       resp ? res.status(201).send(resp) : res.status(400).send("error")
     )
-    .catch((err) => next(err));
+    .catch((err) => console.log(err));
 }
 
 async function addOutGoingCallHandler(body) {
@@ -285,6 +304,7 @@ module.exports = {
   closeCall,
   closeConference,
   addBridge,
+  closeBridge,
   endConference,
   addCallHandler,
   addOutGoingCall,

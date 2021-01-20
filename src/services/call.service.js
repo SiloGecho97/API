@@ -49,7 +49,9 @@ function getConferenceWhere(query) {
 function addBridges(body) {
   return Bridge.create(body);
 }
-
+function closeBridge(body, id) {
+  return Bridge.update(body, { where: { id } });
+}
 function addOutGoing(body) {
   return OutGoing_Call.create(body);
 }
@@ -60,6 +62,7 @@ module.exports = {
   addCall,
   addConference,
   addBridges,
+  closeBridge,
   updateConference,
   getCallById,
   updateCall,

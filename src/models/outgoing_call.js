@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataTypes) {
         type: DataTypes.STRING,
       },
       callee: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER(11),
         allowNull: false,
       },
       status: {

@@ -77,8 +77,12 @@ async function redisMiddlerwareHandler(id) {
 
 function getResourceLeft(req, res, next) {
   getResourceLeftHandler()
-    .then((data) => (data ? next() : res.status(400).send(false)))
-    .catch((err) => res.status(200).send(err));
+    .then((data) =>
+      data
+        ? next()
+        : res.status(400).send({ success: false, error: "No resource left" })
+    )
+    .catch((err) => res.status(200).send({ success: false, error: "No resource left" }));
 }
 function getResource(req, res, next) {
   getResourceLeftHandler()
@@ -94,7 +98,7 @@ async function getResourceLeftHandler() {
 
 function cacheInRedis(id, body) {
   return new Promise((resolve, reject) => {
-    client.set(`${id}`, body,'EX', 5400, (reply, error) => {
+    client.set(`${id}`, body, "EX", 5400, (reply, error) => {
       console.log(reply);
       if (error) reject(false);
     });
@@ -118,7 +122,7 @@ function deleteCallCache(id) {
       console.log(reply);
       if (error) reject(false);
       resolve(reply);
-    });  
+    });
   });
 }
 
@@ -136,7 +140,7 @@ async function getConference(query) {
   conference = await Promise.all(
     conference.map(async (item) => {
       item = await getFromRedis(item);
-      return  JSON.parse(item);
+      return JSON.parse(item);
     })
   );
   return conference.pop();
@@ -156,5 +160,5 @@ module.exports = {
   getOnCallsKeys,
   getResourceLeftHandler,
   getConference,
-  cacheAppendInRedis
+  cacheAppendInRedis,
 };

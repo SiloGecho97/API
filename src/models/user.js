@@ -39,7 +39,7 @@ module.exports = function (sequelize, DataTypes) {
       isAvailable: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: 1,
       },
       isOnCall: {
         type: DataTypes.BOOLEAN,

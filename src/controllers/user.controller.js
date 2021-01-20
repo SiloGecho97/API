@@ -51,13 +51,15 @@ async function checkUserHandler(phoneNumber, callId) {
   } else {
     const createUser = await userSerice.addUser({ phoneNumber: changedPhone });
     if (!createUser) {
-      return { success: false, status: "NEW", id: user.id };
+      return { success: false };
     }
+    const code = await userSerice.addUserCode(createUser.id);
     await addCallHandler({
       callId: callId,
       userId: createUser.id,
       start_date: Date.now(),
     });
+
     // saveToRedis(changedPhone, "NEW").catch((err) => console.log(err));
     return { success: true, status: "NEW", id: createUser.id };
   }
@@ -376,8 +378,13 @@ function addFriend(req, res, next) {
 }
 
 async function addFriendHandler(body) {
-  const friend = await userSerice.addFriend(body);
-  return friend;
+  const count = await userSerice.howManyFriendById(body.userId);
+  console.log(count);
+  if(count <= 5 && count >= 0){
+    const friend = await userSerice.addFriend(body);
+    return { success: true,added:true, id: friend.id, friendId: friend.id };
+  }
+  return { success: true,added:false, message:"Maxium limit" };
 }
 
 function getOneFriend(req, res, next) {
@@ -398,14 +405,28 @@ async function getFriendHandler(query) {
   // console.log(notCalls);
   const friend = await userSerice.getOneFriend(query.id, notCalls);
   if (friend.length > 0) {
-    const addCache = await redisController.cacheInRedis(
-      `oncall:${query.id}`,
-      `${friend[0].friendId},`
-    );
     if (friend) {
       const user = await userSerice.getUserById(friend[0].friendId);
-      return user;
+
+      if (user) {
+        const addCache = await redisController.cacheInRedis(
+          `oncall:${friend[0].friendId}`,
+          `${user.phoneNumber},`
+        );
+        const usertry = await redisController.cacheAppendInRedis(
+          `usercall:${query.id}`,
+          `${user.id},`
+        );
+        await holdResource();
+        return {
+          success: true,
+          isAvailable: true,
+          userId: user.id,
+          phoneNumber: user.phoneNumber,
+        };
+      }
     }
+    return { success: true, isAvailable: true };
   }
 
   return false;
@@ -443,9 +464,17 @@ async function getUserHandler(query) {
       `oncall:${newFriend[0].id}`,
       `${newFriend[0].phoneNumber}`
     );
-    const usertry = await redisController.cacheAppendInRedis(`usercall:${query.id}`, `${newFriend[0].id},`)
+    const usertry = await redisController.cacheAppendInRedis(
+      `usercall:${query.id}`,
+      `${newFriend[0].id},`
+    );
     await holdResource();
-    return { success: true, isAvaliable: true, user: newFriend[0] };
+    return {
+      success: true,
+      isAvaliable: true,
+      userId: newFriend[0].id,
+      phoneNumber: newFriend[0].phoneNumber,
+    };
   }
   return { success: false, isAvaliable: false };
 }
@@ -455,23 +484,23 @@ function releaseResource(req, res, next) {
     .then((resp) =>
       resp
         ? res.status(200).send(resp)
-        : res.status(400).send("Failed to release")
+        : res.status(400).send({ success: false, error: "Failed to release" })
     )
     .catch((err) => next(err));
 }
 
 async function releaseResourceHandler(body) {
   const removeCache = await redisController.deleteCallCache(
-    `oncall:${body.id}`
+    `oncall:${body.userId}`
   );
   if (removeCache) {
     const resource = await redisController.releaseResource();
-    return true;
+    return { success: true };
   }
 }
 
 function getUser(req, res, next) {
-  getUserByIdHandler(req.params.id)
+  getUserByChatIdHandler(req.query.chatNumber || "", req.query.userId || "")
     .then((resp) =>
       resp
         ? res.status(200).send(resp)
@@ -484,19 +513,37 @@ function getUser(req, res, next) {
  * Return User if exist
  * @param {*} id
  */
-async function getUserByIdHandler(id) {
-  const check = await redisController.getFromRedis(`oncall:${id}`);
-  if (!check) {
-    const user = await userSerice.getUserById(id);
-    if (user) {
+async function getUserByChatIdHandler(codeId, userId) {
+  const code = await userSerice.getUserByCode(codeId);
+  if (code) {
+    const user = await userSerice.getUserById(code.userId);
+    if (!user || !user.isAvailable) {
+      return { success: true, isAvailable: false, isOnline: false };
+    }
+    const check = await redisController.getFromRedis(`oncall:${user.id}`);
+    if (!check) {
+      const addCache = await redisController.cacheInRedis(
+        `oncall:${user.id}`,
+        `${user.phoneNumber}`
+      );
+      const usertry = await redisController.cacheAppendInRedis(
+        `usercall:${userId}`,
+        `${user.id},`
+      );
       return {
         success: true,
         isavailable: true,
+        isOnline: true,
         phoneNumber: user.phoneNumber,
       };
     }
+    return {
+      success: true,
+      isAvailable: true,
+      isOnline: false,
+    };
   }
-  return { success: false, isavailable: false };
+  return { success: true, isAvailable: false, isOnline: false };
 }
 
 module.exports = {

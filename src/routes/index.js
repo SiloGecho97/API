@@ -20,7 +20,6 @@ app.post("/api/preffered",controller.updateUserPreffered)
 //oncalls APIS
 app.put("/api/:id/isoncall",callController.updateUserOncall)
 
-
 //add to call
 app.post("/api/call",callController.addCall);
 
@@ -52,26 +51,18 @@ app.put("/api/conference/close",callController.closeConference)
  **/
 app.put("/api/conference/end",callController.endConference)
 
-//Brigdes when two use connect
-app.post("/api/bridge",callController.addBridge)
-
 //Add Friend
-app.post("/api/user/friend",userController.addFriend);
+app.post("/api/addfriend",userController.addFriend);
 
 //Get random Friend
 //Should not be taken check its oncall
 //If two user ask the same friend check its status
-app.get("/api/friend",userController.getOneFriend)
+app.get("/api/friend",redisController.getResourceLeft,userController.getOneFriend)
 
 //Resource management
 //get Resource limitted when try to reach 
 //Release resource if failed and bridge end
-//
-
-
-//Failed to connect user
-app.put("/api/user/failed",userController.releaseResource)
-
+app.post("/api/release/resource",userController.releaseResource)
 
 //get user
 //add resource available check
@@ -82,13 +73,16 @@ app.get("/api/resource",redisController.getResource)
 // app.put("/api/resource/release",redisController.releaseResource)
 
 //two type of hangup scenarios outgoing and ingoing
-
 //outgoing call logs
 //resource management
 app.post("/api/outgoing",callController.addOutGoingCall)
-app.put("/api/outgoing/close",callController.closeOutgoing)
-
+app.put("/api/end/outgoing",callController.closeOutgoing)
+//Brigdes when two use connect
+app.post("/api/bridge",callController.addBridge);
+app.put("/api/end/bridge",callController.closeBridge);
 //get user with chat id
 //make chat id 6 digit number
-app.get("/api/user/:id",userController.getUser)
+
+//three scenarios invalid user | ISAVAILABLE |user is not available | isoffline=true | ISOFFLINE=FALSE
+app.get("/api/user",redisController.getResourceLeft,userController.getUser)
 

@@ -6,6 +6,8 @@ const {
   Language,
   AgeRange,
   Friend,
+  Code,
+  UserCode,
 } = require("../models");
 
 const Sequelize = require("sequelize");
@@ -35,7 +37,10 @@ function getStatusById(id) {
  * @returns user
  */
 function getUserById(id) {
-  return User.findOne({ attributes: ['id', 'phoneNumber','isOnCall'], where: { id } }).catch((err) => console.log(err));
+  return User.findOne({
+    attributes: ["id", "phoneNumber", "isOnCall", "isAvailable"],
+    where: { id },
+  }).catch((err) => console.log(err));
 }
 /**
  *
@@ -72,7 +77,21 @@ function addFriend(body) {
   return Friend.create(body);
 }
 
-function getOneFriend(id,ids) {
+async function addUserCode(id) {
+  const code = await Code.findOne({ where: { isUsed: 0 } });
+  const userCode = await UserCode.create({ userId: id, codeId: code.code });
+  if (userCode) {
+    return code.update({ isUsed: 1 });
+  }
+}
+
+function getUserByCode(code) {
+  return UserCode.findOne({
+    where: { codeId: code },
+  });
+}
+
+function getOneFriend(id, ids) {
   return Friend.findAll({
     where: { userId: id, friendId: { [Op.notIn]: ids } },
     order: Sequelize.literal("rand()"),
@@ -84,13 +103,17 @@ function getOneUser() {
   return User.findAll({ order: Sequelize.literal("rand()"), limit: 1 });
 }
 
-function getOneUserNext(ids,query) {
+function getOneUserNext(ids, query) {
   return User.findAll({
-    attributes: ['id', 'phoneNumber','sexId','ageRengId'],
-    where: { id: { [Op.notIn]: ids },...getWhere(query) },
+    attributes: ["id", "phoneNumber", "sexId", "ageRengId"],
+    where: { id: { [Op.notIn]: ids }, ...getWhere(query) },
     order: Sequelize.literal("rand()"),
     limit: 1,
   });
+}
+
+function howManyFriendById(id) {
+  return Friend.count({ where: { userId:id } });
 }
 /**
  * Build where clause for findOne
@@ -107,6 +130,8 @@ function getWhere(query) {
 module.exports = {
   addUser,
   addFriend,
+  addUserCode,
+  howManyFriendById,
   getUserByPhone,
   getStatusById,
   getUserById,
@@ -117,5 +142,6 @@ module.exports = {
   getRegStatusById,
   getOneFriend,
   getOneUser,
-  getOneUserNext
+  getOneUserNext,
+  getUserByCode,
 };
