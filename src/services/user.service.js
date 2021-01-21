@@ -113,7 +113,10 @@ function getOneUserNext(ids, query) {
 }
 
 function howManyFriendById(id) {
-  return Friend.count({ where: { userId:id } });
+  return Friend.count({ where: { userId: id } });
+}
+function checkFriend(userId, friendId) {
+  return Friend.findOne({ where: { userId, friendId } });
 }
 /**
  * Build where clause for findOne
@@ -144,4 +147,5 @@ module.exports = {
   getOneUser,
   getOneUserNext,
   getUserByCode,
+  checkFriend,
 };

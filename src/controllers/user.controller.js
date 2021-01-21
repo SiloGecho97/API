@@ -10,7 +10,9 @@ const { addCallHandler } = require("./call.controller");
 function checkUserByPhone(req, res, next) {
   const { phoneNumber } = req.query;
   const { callId } = req.query;
-
+  if (!callId) {
+    res.status(400).send({ success: false, error: "callId is required" });
+  }
   checkUserHandler(phoneNumber || "", callId || "")
     .then((resp) => res.status(200).send(resp))
     .catch((err) => {
@@ -380,11 +382,11 @@ function addFriend(req, res, next) {
 async function addFriendHandler(body) {
   const count = await userSerice.howManyFriendById(body.userId);
   console.log(count);
-  if(count <= 5 && count >= 0){
+  if (count <= 5 && count >= 0) {
     const friend = await userSerice.addFriend(body);
-    return { success: true,added:true, id: friend.id, friendId: friend.id };
+    return { success: true, added: true, id: friend.id, friendId: friend.id };
   }
-  return { success: true,added:false, message:"Maxium limit" };
+  return { success: true, added: false, message: "Maxium limit" };
 }
 
 function getOneFriend(req, res, next) {
@@ -546,6 +548,24 @@ async function getUserByChatIdHandler(codeId, userId) {
   return { success: true, isAvailable: false, isOnline: false };
 }
 
+function isFriend(req, res, next) {
+  isFriendCheck(req.query.friendId || "", req.query.userId || "")
+    .then((resp) =>
+      resp
+        ? res.status(200).send(resp)
+        : res.status(404).send({ success: false, error: "Not Found" })
+    )
+    .catch((err) => next(err));
+}
+
+async function isFriendCheck(friendId, userId) {
+  const friend = await userSerice.checkFriend(userId, friendId);
+  if (friend) {
+    return { success: true, isFriend: true };
+  }
+  return { success: true, isFriend: false };
+}
+
 module.exports = {
   checkUserByPhone,
   updateLangauge,
@@ -564,4 +584,5 @@ module.exports = {
   getOneUser,
   getUser,
   releaseResource,
+  isFriend,
 };
