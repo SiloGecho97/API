@@ -114,7 +114,7 @@ async function closeCallHandler(userId, callId) {
       );
       if (userscall) {
         userscall.split(",").map((item) => {
-          if(item){
+          if (item) {
             releaseResource();
             deleteCallCache(`oncall:${item}`);
           }
@@ -151,7 +151,12 @@ async function getConferenceHandler(query) {
       conferenceId: conference.id,
     });
     await deleteCallCache(`conference:${conference.gender}:${conference.id}`);
-    return { success: true, conferenceId: conference.id, isAvailable: true };
+    return {
+      success: true,
+      conferenceId: conference.id,
+      userId: conference.userId_1,
+      isAvailable: true,
+    };
   }
   return { success: true, isAvailable: false };
 }
