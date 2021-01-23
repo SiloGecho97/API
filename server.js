@@ -6,7 +6,7 @@ const morgan = require("morgan");
 const routes = require("./src/routes");
 const { createRedisConnection } = require("./src/controllers/redis.controller");
 const errorHandler = require("./src/_helpers/errorHandler");
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8484;
 
 let app = express();
 
