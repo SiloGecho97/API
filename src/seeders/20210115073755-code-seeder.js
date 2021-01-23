@@ -30,7 +30,6 @@ module.exports = {
       code = parseInt(randomstring.generate({ length: 6, charset: "123456789" }));
     }
     codes.push({
-      id: i,
       code
     });
   }
