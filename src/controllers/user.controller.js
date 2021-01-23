@@ -31,7 +31,6 @@ async function checkUserHandler(phoneNumber, callId) {
   }
   const user = await userSerice.getUserByPhone(changedPhone);
   if (user) {
-    const userStatus = await userSerice.getStatusById(user.regStatus);
 
     const addCaller = await addCallHandler({
       callId: callId,
@@ -41,7 +40,7 @@ async function checkUserHandler(phoneNumber, callId) {
 
     return {
       success: true,
-      status: userStatus.status,
+      status: user.regStatus,
       id: user.id,
       preferredSexId: user.preferredSexId,
       preferredAgeId: user.preferredAgeId,
@@ -63,7 +62,7 @@ async function checkUserHandler(phoneNumber, callId) {
     });
 
     // saveToRedis(changedPhone, "NEW").catch((err) => console.log(err));
-    return { success: true, status: "NEW", id: createUser.id };
+    return { success: true, status: createUser.regStatus, id: createUser.id };
   }
 }
 
