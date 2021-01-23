@@ -88,6 +88,7 @@ function closeCall(req, res, next) {
   let { userId, callId } = req.body;
   if (!userId || !callId) {
     res.status(400).send({ success: false, error: "invalid request" });
+    return;
   }
   closeCallHandler(userId, callId)
     .then((data) =>
