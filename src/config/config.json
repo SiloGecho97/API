@@ -1,9 +1,9 @@
 {
   "development": {
     "username": "root",
-    "password": "password",
+    "password": "Til&925!Tek",
     "database": "chatdb",
-    "host": "192.168.0.10",
+    "host": "localhost",
     "dialect": "mysql"
   },
   "test": {
