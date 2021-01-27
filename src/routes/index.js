@@ -91,7 +91,7 @@ app.get("/api/user",redisController.getResourceLeft,userController.getUser)
 app.get("/api/isfriend",userController.isFriend)
 
 
-app.all("/*", (req, res) => {
-    res.status(404).send({ success:false,msg: "not found" });
-});
+// app.all("*", (req, res) => {
+//     res.status(404).send({ success:false,msg: "not found" });
+// });
   
