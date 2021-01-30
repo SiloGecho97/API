@@ -27,6 +27,7 @@ app.post("/api/call",callController.addCall);
 app.put("/api/call/close",callController.closeCall)
 
 //API Check available conference to join
+//Check is profile if any is on waiting 
 app.get("/api/conference",callController.getConference);
 
 //add to conference with preferance
@@ -76,7 +77,7 @@ app.get("/api/resource",redisController.getResource)
 //outgoing call logs
 //resource management
 app.post("/api/outgoing",callController.addOutGoingCall)
-app.put("/api/end/outgoing",callController.closeOutgoing)
+app.put("/api/endoutgoing",callController.closeOutgoing)
 //Brigdes when two use connect
 app.post("/api/bridge",callController.addBridge);
 app.put("/api/end/bridge",callController.closeBridge);

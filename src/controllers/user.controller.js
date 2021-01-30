@@ -102,9 +102,7 @@ async function updateLangaugeHandler(body) {
     if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 2 });
       if (updateStatus) {
-        saveToRedis(user.phoneNumber, "LANGUAGE").catch((err) =>
-          console.log(err)
-        );
+      
         return { success: true, status: "LANGUAGE" };
       }
     }
@@ -132,7 +130,6 @@ async function updateSexHandler(body) {
     const updateUser = await userSerice.updateUser(user, { sexId: body.sexId });
     if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 3 });
-      // saveToRedis(user.phoneNumber, "SEX").catch((err) => console.log(err));
       return { success: true, status: "SEX" };
     }
   }
@@ -157,7 +154,6 @@ async function updateAgeHandler(body) {
     });
     if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 4 });
-      // saveToRedis(user.phoneNumber, "AGE").catch((err) => console.log(err));
       return { success: true, status: "AGE" };
     }
   }
@@ -215,7 +211,6 @@ async function updateIsAgreeHandler(body) {
 }
 
 function updateIsAvailable(req, res, next) {
-  console.log(req.body);
   const { id, available } = req.body;
   if (!id && available !== undefined) {
     return res.status(400).send("Invalid Request");
@@ -502,11 +497,12 @@ async function releaseResourceHandler(body) {
 
 function getUser(req, res, next) {
   getUserByChatIdHandler(req.query.chatNumber || "", req.query.userId || "")
-    .then((resp) =>
+    .then((resp) =>{
+      console.log(resp);
       resp
         ? res.status(200).send(resp)
         : res.status(404).send({ success: false, error: "Not Found" })
-    )
+    })
     .catch((err) => next(err));
 }
 
@@ -518,10 +514,13 @@ async function getUserByChatIdHandler(codeId, userId) {
   const code = await userSerice.getUserByCode(codeId);
   if (code) {
     const user = await userSerice.getUserById(code.userId);
+    // console.log(user,"isavailable");
     if (!user || !user.isAvailable) {
+      // console.log();
       return { success: true, isAvailable: false, isOnline: false };
     }
     const check = await redisController.getFromRedis(`oncall:${user.id}`);
+    console.log(check,'check')
     if (!check) {
       const addCache = await redisController.cacheInRedis(
         `oncall:${user.id}`,
@@ -531,11 +530,13 @@ async function getUserByChatIdHandler(codeId, userId) {
         `usercall:${userId}`,
         `${user.id},`
       );
+     
       return {
         success: true,
-        isavailable: true,
+        isAvailable: true,
         isOnline: true,
         phoneNumber: user.phoneNumber,
+        userId:user.id
       };
     }
     return {

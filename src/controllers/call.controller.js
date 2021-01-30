@@ -114,6 +114,7 @@ async function closeCallHandler(userId, callId) {
         `usercall:${userId}`
       );
       if (userscall) {
+        console.log('userscall', userscall)
         userscall.split(",").map((item) => {
           if (item) {
             releaseResource();
@@ -121,9 +122,9 @@ async function closeCallHandler(userId, callId) {
           }
         });
 
-        deleteCallCache(`usercall:${userId}`);
+       await deleteCallCache(`usercall:${userId}`);
       }
-      deleteCallCache(`oncall:${call.userId}`);
+      await deleteCallCache(`oncall:${call.userId}`);
       return call;
     }
   }
@@ -230,7 +231,7 @@ async function endConferenceHandler(body) {
       body.conferenceId,
       conf
     );
-    console.log(conference);
+    // console.log(conference);
     if (conference) {
       await redisController.deleteCallCache(
         `conference:${conf.gender}:${body.conferenceId}`
@@ -294,6 +295,7 @@ function closeOutgoing(req, res, next) {
 }
 
 async function closeOutgoingHandler(body) {
+  console.log(body);
   const bridges = await callService.closeOutGoing(
     { status: "CLOSED", end_time: Date.now() },
     body.callId
