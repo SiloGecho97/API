@@ -7,7 +7,6 @@ const {
   deleteCallCache,
 } = require("./redis.controller");
 
-console.log("Am called");
 
 function updateUserOncall(req, res, next) {
   updateUseronCallHandler(req.params.id)
@@ -100,7 +99,6 @@ function closeCall(req, res, next) {
 }
 
 async function closeCallHandler(userId, callId) {
-  console.log('userid,callid', userId,callId)
   const call = await callService.getCallById(callId);
   if (call) {
     const update = await callService.updateCall(call, {

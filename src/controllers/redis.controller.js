@@ -24,7 +24,6 @@ function saveToRedis(phone, status) {
   let keys = JSON.stringify({ status });
   return new Promise((resolve, reject) => {
     client.set(`${phone.trim()}`, keys, (reply, error) => {
-      console.log(reply);
       if (error) reject(false);
     });
     resolve(true);
@@ -33,7 +32,6 @@ function saveToRedis(phone, status) {
 function holdResource() {
   return new Promise((resolve, reject) => {
     client.incr(`resource`, (error, reply) => {
-      console.log(reply);
       if (error) reject(false);
     });
     resolve(true);
@@ -43,7 +41,6 @@ function holdResource() {
 function releaseResource() {
   return new Promise((resolve, reject) => {
     client.decr(`resource`, (error, reply) => {
-      console.log(reply);
       if (error) reject(false);
     });
     resolve(true);
@@ -53,7 +50,6 @@ function releaseResource() {
 function getFromRedis(id) {
   return new Promise((resolve, reject) => {
     client.get(id, (error, reply) => {
-      console.log(reply, error);
       if (error) reject(error);
       resolve(reply);
     });
@@ -109,7 +105,6 @@ function cacheInRedis(id, body) {
 function cacheAppendInRedis(id, body) {
   return new Promise((resolve, reject) => {
     client.append(`${id}`, body, (reply, error) => {
-      console.log(reply);
       if (error) reject(false);
     });
     resolve(true);
@@ -119,7 +114,6 @@ function cacheAppendInRedis(id, body) {
 function deleteCallCache(id) {
   return new Promise((resolve, reject) => {
     client.del(`${id}`, (error, reply) => {
-      console.log(reply);
       if (error) reject(false);
       resolve(reply);
     });
