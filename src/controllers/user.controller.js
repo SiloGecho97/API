@@ -430,11 +430,12 @@ async function getFriendHandler(query) {
 
 function getOneUser(req, res, next) {
   getUserHandler(req.query)
-    .then((resp) =>
+    .then((resp) =>{
+      console.log('resp', resp)
       resp
         ? res.status(200).send(resp)
         : res.status(404).send({ success: false, error: "Failed to Create" })
-    )
+    })
     .catch((err) => next(err));
 }
 function extactIdFromCache(calls) {
@@ -445,7 +446,7 @@ function extactIdFromCache(calls) {
 async function getUserHandler(query) {
   const user = await userSerice.getUserById(query.id);
   if (!user) {
-    return { success: false, message: "User not found" };
+    return { success: true, isAvailable: false, message: "User not found" };
   }
   let notCall = [];
   const getCalls = await redisController.getOnCallsKeys(`oncall:*`);
@@ -467,12 +468,12 @@ async function getUserHandler(query) {
     await holdResource();
     return {
       success: true,
-      isAvaliable: true,
-      userId: newFriend[0].id,
+      isAvailable: true, 
+      userId: `${newFriend[0].id}`,
       phoneNumber: newFriend[0].phoneNumber,
     };
   }
-  return { success: false, isAvaliable: false };
+  return { success: true, isAvaliable: false };
 }
 
 function releaseResource(req, res, next) {
@@ -530,6 +531,8 @@ async function getUserByChatIdHandler(codeId, userId) {
         `usercall:${userId}`,
         `${user.id},`
       );
+
+      await redisController.holdResource()
      
       return {
         success: true,

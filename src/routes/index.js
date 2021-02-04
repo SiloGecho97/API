@@ -80,7 +80,7 @@ app.post("/api/outgoing",callController.addOutGoingCall)
 app.put("/api/endoutgoing",callController.closeOutgoing)
 //Brigdes when two use connect
 app.post("/api/bridge",callController.addBridge);
-app.put("/api/end/bridge",callController.closeBridge);
+app.put("/api/endbridge",callController.closeBridge);
 //get user with chat id
 //make chat id 6 digit number
 
@@ -92,7 +92,7 @@ app.get("/api/user",redisController.getResourceLeft,userController.getUser)
 app.get("/api/isfriend",userController.isFriend)
 
 
-// app.all("*", (req, res) => {
-//     res.status(404).send({ success:false,msg: "not found" });
-// });
+app.all("*", (req, res) => {
+    res.status(404).send({ success:false,msg: "not found" });
+});
   

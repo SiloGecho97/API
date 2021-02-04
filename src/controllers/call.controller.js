@@ -100,6 +100,7 @@ function closeCall(req, res, next) {
 }
 
 async function closeCallHandler(userId, callId) {
+  console.log('userid,callid', userId,callId)
   const call = await callService.getCallById(callId);
   if (call) {
     const update = await callService.updateCall(call, {
@@ -272,16 +273,17 @@ async function closeBridgeHandler(body) {
 }
 
 function addOutGoingCall(req, res, next) {
+  console.log('req.body', req.body)
   addOutGoingCallHandler(req.body)
-    .then((resp) =>
+    .then((resp) =>{
       resp ? res.status(201).send(resp) : res.status(400).send("error")
-    )
-    .catch((err) => console.log(err));
+    })
+    .catch((err) =>next(500));
 }
 
 async function addOutGoingCallHandler(body) {
   const bridges = await callService.addOutGoing(body);
-  return bridges;
+  return {success:true};
 }
 
 function closeOutgoing(req, res, next) {
