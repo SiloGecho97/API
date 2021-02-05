@@ -385,11 +385,12 @@ async function addFriendHandler(body) {
 
 function getOneFriend(req, res, next) {
   getFriendHandler(req.query)
-    .then((resp) =>
+    .then((resp) =>{
+      console.log('resp', resp)
       resp
         ? res.status(200).send(resp)
         : res.status(404).send({ success: false, error: "Not Found" })
-    )
+    })
     .catch((err) => next(err));
 }
 
@@ -422,10 +423,10 @@ async function getFriendHandler(query) {
         };
       }
     }
-    return { success: true, isAvailable: true };
+    return { success: true, isAvailable: false };
   }
 
-  return false;
+  return { success:true, isAvailable:false };
 }
 
 function getOneUser(req, res, next) {
