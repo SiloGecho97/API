@@ -142,6 +142,29 @@ function getConference(req, res, next) {
     });
 }
 
+function checkConference(req, res, next) {
+  checkConferenceHandler(req.query)
+    .then((data) => {
+      data
+        ? res.status(200).send(data)
+        : res.status(400).send({ success: false, error: "Failed" });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({ success: false, error: err });
+    });
+}
+
+async function checkConferenceHandler(query) {
+  const conference = await redisController.getConference(query);
+  if(conference){
+    return {success:true,isAvailable:true};
+  }
+  return {success:true,isAvailable:false}
+ 
+}
+
+
 async function getConferenceHandler(query) {
   const conference = await redisController.getConference(query);
   // const conference = await callService.getConference(query);
@@ -317,4 +340,5 @@ module.exports = {
   addCallHandler,
   addOutGoingCall,
   closeOutgoing,
+  checkConference
 };

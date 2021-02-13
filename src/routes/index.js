@@ -87,6 +87,7 @@ app.put("/api/endbridge",callController.closeBridge);
 //three scenarios invalid user | ISAVAILABLE |user is not available | isoffline=true | ISOFFLINE=FALSE
 app.get("/api/user",redisController.getResourceLeft,userController.getUser)
 
+app.get("/api/checkconference",callController.checkConference)
 
 //isFriend check
 app.get("/api/isfriend",userController.isFriend)

@@ -517,12 +517,11 @@ async function getUserByChatIdHandler(codeId, userId) {
   if (code) {
     const user = await userSerice.getUserById(code.userId);
     // console.log(user,"isavailable");
-    if (!user || !user.isAvailable) {
+    if (!user || !user.isAvailable || userId==code.userID ) {
       // console.log();
       return { success: true, isAvailable: false, isOnline: false };
     }
     const check = await redisController.getFromRedis(`oncall:${user.id}`);
-    console.log(check,'check')
     if (!check) {
       const addCache = await redisController.cacheInRedis(
         `oncall:${user.id}`,
