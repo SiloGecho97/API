@@ -320,7 +320,7 @@ function updateUserPreffered(req, res, next) {
   }
   updateUserPrefferedHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => res.status(500).send({ success:false, message: err }));
 }
 
 async function updateUserPrefferedHandler(body) {
@@ -354,7 +354,7 @@ async function updateUserPrefferedHandler(body) {
       }
     }
     return {
-      success: false,
+      success: true,
       preferredSexId: user.preferredSexId,
       preferredAgeId: user.preferredAgeId,
       preferredLanguageId: user.preferredLanguageId,
