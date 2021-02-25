@@ -86,11 +86,35 @@ function updateLangauge(req, res, next) {
   // console.log(req.body)
   const { id, languageId } = req.body;
   if (!id || !languageId) {
-    return res.status(200).send("Invalid Request");
+    return res.status(200).send({success:false,message:"Invalid Request"});
   }
   updateLangaugeHandler(req.body)
     .then((resp) => res.status(200).send(resp))
+    .catch((err) => res.status(200).send({success:false,message:"Invalid Request"}));
+}
+
+function changeLangauge(req, res, next) {
+  // console.log(req.body)
+  const { id, languageId } = req.body;
+  if (!id || !languageId) {
+    return res.status(200).send({success:false,message:"Invalid Request"});
+  }
+  changeLangaugeHandler(req.body)
+    .then((resp) => res.status(200).send(resp))
     .catch((err) => res.status(500).send({ message: err }));
+}
+
+async function changeLangaugeHandler(body) {
+  const user = await userSerice.getUserById(body.id);
+  if (user) {
+    const updateUser = await userSerice.updateUser(user, {
+      languageId: body.languageId,
+    });
+    if (updateUser) {
+        return { success: true };
+    }
+  }
+  return { success: false };
 }
 
 async function updateLangaugeHandler(body) {
@@ -117,7 +141,7 @@ function updateSex(req, res, next) {
   }
   updateSexHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function updateSexHandler(body) {
@@ -143,7 +167,7 @@ function updateAge(req, res, next) {
   }
   updateAgeHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function updateAgeHandler(body) {
@@ -168,7 +192,7 @@ function updateRegStatus(req, res, next) {
   }
   updateRegStatusHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function updateRegStatusHandler(body) {
@@ -188,11 +212,11 @@ async function updateRegStatusHandler(body) {
 function updateIsAgree(req, res, next) {
   const { id, agree } = req.body;
   if (!id || !agree) {
-    return res.status(400).send("Invalid Request");
+    return res.status(200).send({success:false,message:"Invalid Request"});
   }
   updateIsAgreeHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function updateIsAgreeHandler(body) {
@@ -213,11 +237,11 @@ async function updateIsAgreeHandler(body) {
 function updateIsAvailable(req, res, next) {
   const { id, available } = req.body;
   if (!id && available !== undefined) {
-    return res.status(400).send("Invalid Request");
+    return res.status(400).send({success:false,message:"Invalid Request"});
   }
   updateIsAvailableHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function updateIsAvailableHandler(body) {
@@ -241,11 +265,11 @@ function updateIsOnCall(req, res, next) {
   console.log(req.body);
   const { id, onCall } = req.body;
   if (!id && onCall !== undefined) {
-    return res.status(400).send("Invalid Request");
+    return res.status(400).send({success:false,message:"Invalid Request"});
   }
   updateIsOnCallHadler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function updateIsOnCallHadler(body) {
@@ -269,7 +293,7 @@ async function updateIsOnCallHadler(body) {
 function checkAvailable(req, res, next) {
   checkAvailableHandler(req.query.id)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function checkAvailableHandler(id) {
@@ -284,7 +308,7 @@ async function checkAvailableHandler(id) {
 function checkOnCall(req, res, next) {
   checkOnCallHandler(req.query.id)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function checkOnCallHandler(id) {
@@ -297,7 +321,7 @@ async function checkOnCallHandler(id) {
 function getPreffered(req, res, next) {
   getPrefferedHandler(req.params.id)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function getPrefferedHandler(id) {
@@ -453,7 +477,7 @@ async function getUserHandler(query) {
   const getCalls = await redisController.getOnCallsKeys(`oncall:*`);
   notCall = extactIdFromCache(getCalls);
   const newFriend = await userSerice.getOneUserNext(notCall, {
-    sex: user.sexId,
+    sex: query.sexId,
     age: user.ageRengId,
     language: user.languageId,
   });
@@ -578,6 +602,7 @@ module.exports = {
   updateIsAgree,
   updateIsAvailable,
   updateIsOnCall,
+  changeLangauge,
   checkAvailable,
   checkOnCall,
   getPreffered,

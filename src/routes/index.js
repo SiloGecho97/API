@@ -16,7 +16,7 @@ app.get("/api/isavailable",controller.checkAvailable);
 app.get("/api/isoncall",controller.checkOnCall);
 app.get("/api/preffered/:id",controller.getPreffered)
 app.post("/api/preffered",controller.updateUserPreffered)
-
+app.post("/api/changelang",controller.changeLangauge)
 //oncalls APIS
 app.put("/api/:id/isoncall",callController.updateUserOncall)
 
@@ -97,3 +97,10 @@ app.all("*", (req, res) => {
     res.status(404).send({ success:false,msg: "not found" });
 });
   
+
+
+//note
+/**
+ * check is available when call by chatnumber and new friend
+ * 
+ */
