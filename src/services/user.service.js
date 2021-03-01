@@ -42,6 +42,13 @@ function getUserById(id) {
     where: { id },
   }).catch((err) => console.log(err));
 }
+
+function getAvaliableUserById(id) {
+  return User.findOne({
+    attributes: ["id", "phoneNumber", "isOnCall", "isAvailable"],
+    where: { id,isAvailable:1 },
+  }).catch((err) => console.log(err));
+}
 /**
  *
  * @param {*} user
@@ -138,6 +145,7 @@ module.exports = {
   getUserByPhone,
   getStatusById,
   getUserById,
+  getAvaliableUserById,
   updateUser,
   getSexById,
   getAgeById,

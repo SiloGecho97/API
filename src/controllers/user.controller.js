@@ -60,9 +60,7 @@ async function checkUserHandler(phoneNumber, callId) {
       userId: createUser.id,
       start_date: Date.now(),
     });
-
-    // saveToRedis(changedPhone, "NEW").catch((err) => console.log(err));
-    return { success: true, status: createUser.regStatus, id: createUser.id };
+    return { success: true, status: createUser.regStatus, id: createUser.id,isAvailable: createUser.isAvailable };
   }
 }
 
@@ -101,7 +99,7 @@ function changeLangauge(req, res, next) {
   }
   changeLangaugeHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 }
 
 async function changeLangaugeHandler(body) {
@@ -111,7 +109,7 @@ async function changeLangaugeHandler(body) {
       languageId: body.languageId,
     });
     if (updateUser) {
-        return { success: true };
+        return { success: true,languageId };
     }
   }
   return { success: false };
@@ -237,7 +235,7 @@ async function updateIsAgreeHandler(body) {
 function updateIsAvailable(req, res, next) {
   const { id, available } = req.body;
   if (!id && available !== undefined) {
-    return res.status(400).send({success:false,message:"Invalid Request"});
+    return res.status(200).send({success:false,message:"Invalid Request"});
   }
   updateIsAvailableHandler(req.body)
     .then((resp) => res.status(200).send(resp))
@@ -247,12 +245,12 @@ function updateIsAvailable(req, res, next) {
 async function updateIsAvailableHandler(body) {
   const user = await userSerice.getUserById(body.id);
   if (user) {
-    if (body.available || body.available == 1) {
+    if (body.available || body.available == true) {
       const updateUser = await userSerice.updateUser(user, { isAvailable: 1 });
       if (updateUser) {
         return { success: true, isAvailable: true };
       }
-    } else if (!body.available || body.available == 0) {
+    } else if (!body.available || body.available == false) {
       const updateUser = await userSerice.updateUser(user, { isAvailable: 0 });
       if (updateUser) {
         return { success: true, isAvailable: false };
@@ -427,7 +425,7 @@ async function getFriendHandler(query) {
   const friend = await userSerice.getOneFriend(query.id, notCalls);
   if (friend.length > 0) {
     if (friend) {
-      const user = await userSerice.getUserById(friend[0].friendId);
+      const user = await userSerice.getAvaliableUserById(friend[0].friendId);
 
       if (user) {
         const addCache = await redisController.cacheInRedis(
@@ -469,7 +467,7 @@ function extactIdFromCache(calls) {
   });
 }
 async function getUserHandler(query) {
-  const user = await userSerice.getUserById(query.id);
+  const user = await userSerice.getAvaliableUserById(query.id);
   if (!user) {
     return { success: true, isAvailable: false, message: "User not found" };
   }
@@ -539,7 +537,7 @@ function getUser(req, res, next) {
 async function getUserByChatIdHandler(codeId, userId) {
   const code = await userSerice.getUserByCode(codeId);
   if (code) {
-    const user = await userSerice.getUserById(code.userId);
+    const user = await userSerice.getAvaliableUserById(code.userId);
     // console.log(user,"isavailable");
     if (!user || !user.isAvailable || userId==code.userID ) {
       // console.log();

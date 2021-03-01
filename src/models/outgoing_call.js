@@ -2,8 +2,14 @@ module.exports = function (sequelize, DataTypes) {
   let call = sequelize.define(
     "out_going_call",
     {
-      callId: {
+      id:{
         primaryKey: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        autoIncrement: true,
+      },
+      callId: {
+        unique: true,
         type: DataTypes.STRING,
         allowNull: false,
       },

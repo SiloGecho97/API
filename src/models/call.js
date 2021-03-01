@@ -4,33 +4,39 @@ module.exports = function (sequelize, DataTypes) {
     let call = sequelize.define(
         "call",
         {
-            callId: {
+            id: {
                 primaryKey: true,
                 type: DataTypes.STRING,
                 allowNull: false,
+                autoIncrement: true,
             },
-            start_date:{
-                type:DataTypes.DATE,
-                allowNull:false,
-                defaultValue:sequelize.NOW
+            callId: {
+                unique: true,
+                type: DataTypes.STRING,
+                allowNull: false,
             },
-            end_date:{
-                type:DataTypes.DATE,
+            start_date: {
+                type: DataTypes.DATE,
+                allowNull: false,
+                defaultValue: sequelize.NOW
             },
-            userId:{
-                type:DataTypes.INTEGER(11)
+            end_date: {
+                type: DataTypes.DATE,
+            },
+            userId: {
+                type: DataTypes.INTEGER(11)
             },
             status: {
                 type: DataTypes.ENUM("ACTIVE", "CLOSED"),
                 allowNull: false,
                 defaultValue: "ACTIVE",
-              },
-            deletedAt:{
-                type:DataTypes.DATE,
+            },
+            deletedAt: {
+                type: DataTypes.DATE,
             }
         },
         {
-           
+
             freezeTableName: true,
             tableName: "call_log",
         }
