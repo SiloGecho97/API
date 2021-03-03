@@ -92,7 +92,7 @@ function updateLangauge(req, res, next) {
 }
 
 function changeLangauge(req, res, next) {
-  // console.log(req.body)
+  console.log(req.body)
   const { id, languageId } = req.body;
   if (!id || !languageId) {
     return res.status(200).send({success:false,message:"Invalid Request"});
@@ -109,7 +109,7 @@ async function changeLangaugeHandler(body) {
       languageId: body.languageId,
     });
     if (updateUser) {
-        return { success: true,languageId };
+        return { success: true,languageId:body.languageId };
     }
   }
   return { success: false };
