@@ -48,6 +48,7 @@ async function checkUserHandler(phoneNumber, callId) {
       isAvailable: user.isAvailable,
       isOnCall: user.isOnCall,
       isAgreedToTerms: user.isAgreedToTerms,
+      languageId: user.languageId
     };
   } else {
     const createUser = await userSerice.addUser({ phoneNumber: changedPhone });
@@ -60,7 +61,7 @@ async function checkUserHandler(phoneNumber, callId) {
       userId: createUser.id,
       start_date: Date.now(),
     });
-    return { success: true, status: createUser.regStatus, id: createUser.id, isAvailable: createUser.isAvailable };
+    return { success: true, status: createUser.regStatus, id: createUser.id, languageId: createUser.languageId, isAvailable: createUser.isAvailable };
   }
 }
 
