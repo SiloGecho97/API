@@ -60,7 +60,7 @@ async function checkUserHandler(phoneNumber, callId) {
       userId: createUser.id,
       start_date: Date.now(),
     });
-    return { success: true, status: createUser.regStatus, id: createUser.id,isAvailable: createUser.isAvailable };
+    return { success: true, status: createUser.regStatus, id: createUser.id, isAvailable: createUser.isAvailable };
   }
 }
 
@@ -84,18 +84,18 @@ function updateLangauge(req, res, next) {
   // console.log(req.body)
   const { id, languageId } = req.body;
   if (!id || !languageId) {
-    return res.status(200).send({success:false,message:"Invalid Request"});
+    return res.status(200).send({ success: false, message: "Invalid Request" });
   }
   updateLangaugeHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(200).send({success:false,message:"Invalid Request"}));
+    .catch((err) => res.status(200).send({ success: false, message: "Invalid Request" }));
 }
 
 function changeLangauge(req, res, next) {
   console.log(req.body)
   const { id, languageId } = req.body;
   if (!id || !languageId) {
-    return res.status(200).send({success:false,message:"Invalid Request"});
+    return res.status(200).send({ success: false, message: "Invalid Request" });
   }
   changeLangaugeHandler(req.body)
     .then((resp) => res.status(200).send(resp))
@@ -109,7 +109,7 @@ async function changeLangaugeHandler(body) {
       languageId: body.languageId,
     });
     if (updateUser) {
-        return { success: true,languageId:body.languageId };
+      return { success: true, languageId: body.languageId };
     }
   }
   return { success: false };
@@ -124,7 +124,7 @@ async function updateLangaugeHandler(body) {
     if (updateUser && updateUser.regStatus !== 10) {
       const updateStatus = await userSerice.updateUser(user, { regStatus: 2 });
       if (updateStatus) {
-      
+
         return { success: true, status: "LANGUAGE" };
       }
     }
@@ -210,7 +210,7 @@ async function updateRegStatusHandler(body) {
 function updateIsAgree(req, res, next) {
   const { id, agree } = req.body;
   if (!id || !agree) {
-    return res.status(200).send({success:false,message:"Invalid Request"});
+    return res.status(200).send({ success: false, message: "Invalid Request" });
   }
   updateIsAgreeHandler(req.body)
     .then((resp) => res.status(200).send(resp))
@@ -235,7 +235,7 @@ async function updateIsAgreeHandler(body) {
 function updateIsAvailable(req, res, next) {
   const { id, available } = req.body;
   if (!id && available !== undefined) {
-    return res.status(200).send({success:false,message:"Invalid Request"});
+    return res.status(200).send({ success: false, message: "Invalid Request" });
   }
   updateIsAvailableHandler(req.body)
     .then((resp) => res.status(200).send(resp))
@@ -263,7 +263,7 @@ function updateIsOnCall(req, res, next) {
   console.log(req.body);
   const { id, onCall } = req.body;
   if (!id && onCall !== undefined) {
-    return res.status(400).send({success:false,message:"Invalid Request"});
+    return res.status(400).send({ success: false, message: "Invalid Request" });
   }
   updateIsOnCallHadler(req.body)
     .then((resp) => res.status(200).send(resp))
@@ -322,6 +322,24 @@ function getPreffered(req, res, next) {
     .catch((err) => next(err));
 }
 
+function getLanguageById(req, res, next) {
+  getLanguagehandler(req.query.userId)
+    .then((resp) => res.status(200).send(resp))
+    .catch((err) => next(err));
+}
+
+async function getLanguagehandler(id) {
+  const user = await userSerice.getUserById(id);
+  if (user) {
+    return {
+      success: true,
+      languageId: user.languageId,
+    };
+  }
+  return { success: false };
+}
+
+
 async function getPrefferedHandler(id) {
   const user = await userSerice.getUserById(id);
   if (user) {
@@ -342,7 +360,7 @@ function updateUserPreffered(req, res, next) {
   }
   updateUserPrefferedHandler(req.body)
     .then((resp) => res.status(200).send(resp))
-    .catch((err) => res.status(500).send({ success:false, message: err }));
+    .catch((err) => res.status(500).send({ success: false, message: err }));
 }
 
 async function updateUserPrefferedHandler(body) {
@@ -407,7 +425,7 @@ async function addFriendHandler(body) {
 
 function getOneFriend(req, res, next) {
   getFriendHandler(req.query)
-    .then((resp) =>{
+    .then((resp) => {
       console.log('resp', resp)
       resp
         ? res.status(200).send(resp)
@@ -448,12 +466,12 @@ async function getFriendHandler(query) {
     return { success: true, isAvailable: false };
   }
 
-  return { success:true, isAvailable:false };
+  return { success: true, isAvailable: false };
 }
 
 function getOneUser(req, res, next) {
   getUserHandler(req.query)
-    .then((resp) =>{
+    .then((resp) => {
       console.log('resp', resp)
       resp
         ? res.status(200).send(resp)
@@ -491,7 +509,7 @@ async function getUserHandler(query) {
     await holdResource();
     return {
       success: true,
-      isAvailable: true, 
+      isAvailable: true,
       userId: `${newFriend[0].id}`,
       phoneNumber: newFriend[0].phoneNumber,
     };
@@ -521,7 +539,7 @@ async function releaseResourceHandler(body) {
 
 function getUser(req, res, next) {
   getUserByChatIdHandler(req.query.chatNumber || "", req.query.userId || "")
-    .then((resp) =>{
+    .then((resp) => {
       console.log(resp);
       resp
         ? res.status(200).send(resp)
@@ -539,7 +557,7 @@ async function getUserByChatIdHandler(codeId, userId) {
   if (code) {
     const user = await userSerice.getAvaliableUserById(code.userId);
     // console.log(user,"isavailable");
-    if (!user || !user.isAvailable || userId==code.userID ) {
+    if (!user || !user.isAvailable || userId == code.userID) {
       // console.log();
       return { success: true, isAvailable: false, isOnline: false };
     }
@@ -555,13 +573,13 @@ async function getUserByChatIdHandler(codeId, userId) {
       );
 
       await redisController.holdResource()
-     
+
       return {
         success: true,
         isAvailable: true,
         isOnline: true,
         phoneNumber: user.phoneNumber,
-        userId:user.id
+        userId: user.id
       };
     }
     return {
@@ -604,6 +622,7 @@ module.exports = {
   checkAvailable,
   checkOnCall,
   getPreffered,
+  getLanguageById,
   updateUserPreffered,
   addFriend,
   getOneFriend,
